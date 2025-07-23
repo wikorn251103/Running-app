@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".uploaddata.SaveDataFragment"
+    android:layout_marginBottom="50dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@color/purple"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="บันทึกการซ้อมวิ่ง"
+                android:textSize="24sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:orientation="vertical"
+            android:layout_marginTop="30dp"
+            android:layout_margin="24dp"
+            android:background="@drawable/bg_image_upload"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/imageView7"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:src="@drawable/photo_camera_24px" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="อัปโหลดรูปภาพ"
+                android:textSize="18sp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ประเภทการซ้อม"
+                android:textSize="18sp"
+                android:textColor="@color/black"/>
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:chipSpacing="8dp">
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                   android:id="@+id/chipEasy"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="Easy Run"
+                    android:clickable="true"
+                    android:textAlignment="center"/>
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chipTempo"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="Tempo Run"
+                    android:clickable="true"
+                    android:textAlignment="center"/>
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chipInterval"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="Interval Run"
+                    android:clickable="true"
+                    android:textAlignment="center"/>
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chipLong"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="Long Run"
+                    android:clickable="true"
+                    android:textAlignment="center"/>
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chipRecovery"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="Recovery"
+                    android:clickable="true"
+                    android:textAlignment="center"/>
+
+            </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ระยะทาง (กม.)"
+            android:textSize="18sp"
+            android:textColor="@color/black"/>
+
+        <EditText
+            android:layout_marginTop="8dp"
+            android:id="@+id/editDistance"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:paddingStart="16dp"
+            android:background="@drawable/distance_bg"
+            android:inputType="numberDecimal"
+            android:hint="0.0"/>
+
+    </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="เวลา (ชั่วโมง:นาที:วินาที)"
+                android:textSize="18sp"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/etHour"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:hint="00"
+                android:inputType="number"
+                android:maxLength="2"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=":"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <EditText
+                android:id="@+id/etMinute"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:hint="00"
+                android:inputType="number"
+                android:maxLength="2"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=":"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <EditText
+                android:id="@+id/etSecond"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:hint="00"
+                android:inputType="number"
+                android:maxLength="2"
+                android:gravity="center"/>
+
+        </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="โน้ต"
+                android:textColor="@color/black"
+                android:textSize="18sp"/>
+
+            <EditText
+                android:id="@+id/etNote"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:maxLines="5"
+                android:gravity="top|start"
+                android:layout_marginTop="8dp"
+                android:paddingStart="16dp"
+                android:background="@drawable/bg_image_upload"
+                android:inputType="textImeMultiLine"
+                android:hint="กรอกความรู้สึก" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_margin="24dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/resetBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_image_upload"
+                android:textSize="16sp"
+                android:text="ยกเลิก" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/saveBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/btn_bg"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:text="บันทึกการซ้อม" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
