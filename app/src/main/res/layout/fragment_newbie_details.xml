@@ -12,7 +12,7 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="48dp"
         android:background="@drawable/getstarted_bg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,8 +105,9 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout7"
         android:layout_width="350dp"
-        android:layout_height="150dp"
+        android:layout_height="135dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/bg_blue_50"
         app:layout_constraintEnd_toEndOf="parent"
@@ -114,6 +115,7 @@
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout6">
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -139,8 +141,66 @@
                 android:layout_weight="1"
                 android:text="เคล็ดลับก่อนวิ่ง"
                 android:textColor="@color/text_blue_900"
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+            <TextView
+                android:id="@+id/textView30"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:padding="4dp"
+                android:text="• ดื่มน้ำให้เพียงพอก่อนออกกำลังกาย\n• ทำกิจกรรมอบอุ่นร่างกาย 5-10 นาที\n• เริ่มต้นด้วยการเดินเร็วแล้วค่อยเพิ่มความเร็ว\n• ฟังร่างกายของตัวเอง หากเหนื่อยมากให้หยุดพัก"
+                android:textColor="@color/text_blue_800" />
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout7">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/startBtn1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/distance_bg"
+            android:layout_marginEnd="8dp"
+            android:text="ย้อนกลับ"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/backBtnRookie"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@drawable/getstarted_bg"
+            android:text="เริ่มโปรแกรม"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/white"
+            android:textSize="18sp"/>
+    </LinearLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

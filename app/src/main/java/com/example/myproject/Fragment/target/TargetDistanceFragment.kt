@@ -9,6 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.postDelayed
+import com.example.myproject.Fragment.newbiedt.NewbieDetailsFragment
+import com.example.myproject.MainActivity
 import com.example.myproject.R
 import com.example.myproject.databinding.FragmentTargetDistanceBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -34,12 +36,17 @@ class TargetDistanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.provBtn.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
         //คลิกปุ่มย้อนกลับ
         binding.provBtn.setOnClickListener {
             requireActivity().onBackPressed()
         }
 
-        binding.getStartedBtn.setOnClickListener { }
+        binding.getStartedBtn.setOnClickListener {
+            (activity as? MainActivity)?.replaceFragment(NewbieDetailsFragment.newInstance())
+        }
         binding.get5kmBtn.setOnClickListener { }
         binding.get10kmBtn.setOnClickListener { }
     }
