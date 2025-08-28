@@ -8,9 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myproject.Fragment.article.detail.DetailArticleFragment
 import com.example.myproject.Fragment.article.list.adapter.ArticleAdapter
 import com.example.myproject.Fragment.article.list.adapter.ArticleListener
+import com.example.myproject.R
 import com.example.myproject.data.article.ArticleModel
 import com.example.myproject.data.article.ArticleRepositoryImpl
 import com.example.myproject.data.article.ArticleServiceImpl
@@ -24,16 +27,6 @@ class ArticlesFragment : Fragment(), ArticleListener {
     private lateinit var adapter: ArticleAdapter
     private val viewModel: ArticlesViewModel by viewModels {
         ArticlesViewModelFactory(ArticleRepositoryImpl(ArticleServiceImpl()))
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        Log.d("ArticleFragment", "onAttach")
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d("ArticleFragment", "onCreate")
     }
 
     override fun onCreateView(
@@ -69,6 +62,8 @@ class ArticlesFragment : Fragment(), ArticleListener {
     }
 
 
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -76,5 +71,11 @@ class ArticlesFragment : Fragment(), ArticleListener {
 
     override fun onArticleClicked(article: ArticleModel) {
         Log.d("ArticleFragment", "onArticleClicked: $article")
+        val detailFragment = DetailArticleFragment.newInstance(article)
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.container_main, detailFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

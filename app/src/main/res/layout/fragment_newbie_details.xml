@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Fragment.newbiedt.NewbieDetailsFragment">
+    tools:context=".Fragment.detailprogram.NewbieDetailsFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout5"
@@ -73,7 +73,6 @@
             android:paddingStart="16dp">
 
             <TextView
-                android:id="@+id/textView25"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.75"
@@ -83,7 +82,6 @@
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/textView26"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.75"
@@ -93,7 +91,6 @@
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/textView27"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.75"
@@ -168,12 +165,13 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:orientation="horizontal"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="100dp"
         android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout7">
@@ -182,9 +180,9 @@
             android:id="@+id/startBtn1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:background="@drawable/distance_bg"
-            android:layout_marginEnd="8dp"
             android:text="ย้อนกลับ"
             android:textColor="@color/black"
             android:textSize="18sp" />
@@ -192,15 +190,28 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/backBtnRookie"
             android:layout_width="match_parent"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:background="@drawable/getstarted_bg"
-            android:text="เริ่มโปรแกรม"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_bg"
+            android:text="เริ่มโปรแกรม"
             android:textColor="@color/white"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
+
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView32"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="โปรแกรมสำหรับผู้เริ่มต้นวิ่ง เน้นการสร้างพื้นฐานความแข็งแรงและความอดทน ผลผลสมมะระว่างการเดินและการวิ่ง"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

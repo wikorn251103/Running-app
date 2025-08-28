@@ -1,19 +1,16 @@
 package com.example.myproject.Fragment.target
 
 import android.os.Bundle
-import android.os.Handler
 
-import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.postDelayed
-import com.example.myproject.Fragment.newbiedt.NewbieDetailsFragment
+import com.example.myproject.Fragment.detailprogram.NewbieDetailsFragment
+import com.example.myproject.Fragment.detailprogram.RunningGoal10kFragment
+import com.example.myproject.Fragment.detailprogram.RunningGoal5kFragment
 import com.example.myproject.MainActivity
-import com.example.myproject.R
 import com.example.myproject.databinding.FragmentTargetDistanceBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
 class TargetDistanceFragment : Fragment() {
@@ -47,8 +44,12 @@ class TargetDistanceFragment : Fragment() {
         binding.getStartedBtn.setOnClickListener {
             (activity as? MainActivity)?.replaceFragment(NewbieDetailsFragment.newInstance())
         }
-        binding.get5kmBtn.setOnClickListener { }
-        binding.get10kmBtn.setOnClickListener { }
+        binding.get5kmBtn.setOnClickListener {
+            (activity as? MainActivity)?.replaceFragment(RunningGoal5kFragment.newInstance())
+        }
+        binding.get10kmBtn.setOnClickListener {
+            (activity as? MainActivity)?.replaceFragment(RunningGoal10kFragment.newInstance())
+        }
     }
 
     override fun onDestroyView() {

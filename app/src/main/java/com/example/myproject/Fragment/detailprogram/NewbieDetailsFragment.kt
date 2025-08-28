@@ -1,12 +1,10 @@
-package com.example.myproject.Fragment.newbiedt
+package com.example.myproject.Fragment.detailprogram
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.myproject.Fragment.target.TargetDistanceFragment
-import com.example.myproject.R
 import com.example.myproject.databinding.FragmentNewbieDetailsBinding
 
 class NewbieDetailsFragment : Fragment() {
@@ -26,9 +24,12 @@ class NewbieDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.backBtnRookie.setOnClickListener {
+        binding.backBtnRookie.setOnClickListener {}
 
+        binding.startBtn1.setOnClickListener {
+            requireActivity().onBackPressed()
         }
+
 
     }
 

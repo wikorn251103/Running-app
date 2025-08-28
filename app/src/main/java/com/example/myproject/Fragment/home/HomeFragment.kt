@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.myproject.Fragment.drill.ListDrillFragment
 import com.example.myproject.R
 import com.example.myproject.databinding.FragmentHomeBinding
 import com.example.myproject.Fragment.target.TargetDistanceFragment
@@ -32,6 +33,10 @@ class HomeFragment : Fragment() {
         binding.nextBtn.setOnClickListener {
             binding.nextBtn.setColorFilter(ContextCompat.getColor(requireContext(), R.color.yellow))
             (activity as? MainActivity)?.replaceFragment(TargetDistanceFragment.newInstance())
+        }
+
+        binding.startDrill.setOnClickListener {
+            (activity as? MainActivity)?.replaceFragment(ListDrillFragment.newInstance())
         }
     }
 

@@ -1,11 +1,12 @@
-package com.example.myproject.data.article
+package com.example.myproject.data.article.drill
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class ArticleModel (
+data class drillModel (
     val title: String = "",
+    val subtitle: String = "",
     val description: String = "",
-    val imageUrl: String = ""
+    //val imageUrl: String = ""
 ) : Parcelable

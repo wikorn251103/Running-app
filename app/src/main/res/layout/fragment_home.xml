@@ -250,6 +250,7 @@
             android:gravity="center">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/startDrill"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="8dp"

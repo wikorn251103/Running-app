@@ -2,7 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+
 }
+apply(plugin = "kotlin-parcelize")
 
 android {
     namespace = "com.example.myproject"
@@ -50,9 +52,13 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.firestore)
 
+    implementation("io.coil-kt:coil:2.4.0")
+
     implementation("androidx.fragment:fragment-ktx:1.8.8")
 
     implementation (libs.github.glide)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
