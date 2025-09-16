@@ -19,7 +19,13 @@ class ArticleAdapter(private val listener: ArticleListener) : ListAdapter<Articl
                 listener.onArticleClicked(article)
             }
         }
-
+        holder.btnReadMore.setOnClickListener {
+            val position = holder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                val article = getItem(position)
+                listener.onArticleClicked(article)
+            }
+        }
         return holder
     }
 

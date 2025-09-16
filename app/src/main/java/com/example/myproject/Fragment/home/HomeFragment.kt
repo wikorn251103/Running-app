@@ -35,6 +35,10 @@ class HomeFragment : Fragment() {
             (activity as? MainActivity)?.replaceFragment(TargetDistanceFragment.newInstance())
         }
 
+        binding.st.setOnClickListener {
+            (activity as? MainActivity)?.replaceFragment(TargetDistanceFragment.newInstance())
+        }
+
         binding.startDrill.setOnClickListener {
             (activity as? MainActivity)?.replaceFragment(ListDrillFragment.newInstance())
         }

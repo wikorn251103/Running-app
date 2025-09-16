@@ -5,17 +5,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myproject.Fragment.drill.adapter.DrillListener
 import com.example.myproject.Fragment.drill.adapter.drillsAdapter
+import com.example.myproject.Fragment.drill.detail.DrillDetailFragment
 import com.example.myproject.Fragment.drill.list.drillsViewModel
 import com.example.myproject.Fragment.drill.list.drillsViewModelFactory
 import com.example.myproject.data.article.drill.drillModel
 import com.example.myproject.data.article.drill.drillRepositoryImpl
 import com.example.myproject.data.article.drill.drillServiceImpl
 import com.example.myproject.databinding.FragmentListDrillBinding
-
 
 class ListDrillFragment : Fragment(), DrillListener {
     private var _binding: FragmentListDrillBinding? = null
@@ -30,7 +31,6 @@ class ListDrillFragment : Fragment(), DrillListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         _binding = FragmentListDrillBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -38,23 +38,17 @@ class ListDrillFragment : Fragment(), DrillListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //สร้าง Adapter โดยส่ง this ซึ่งตอนนี้เป็น DrillListener
         adapter = drillsAdapter(this)
-
-        //กำหนด LayoutManager และ Adapter ให้กับ RecyclerView
         binding.drillsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.drillsRecyclerView.adapter = adapter
 
-        //เรียกใช้ ViewModel เพื่อนำข้อมูลมาจาก Firebase หรือ Repository
         viewModel.getDrills()
 
-        //อัพเดท UI เมื่อ drills เปลี่ยนแปลง
         viewModel.drills.observe(viewLifecycleOwner) { drills ->
             binding.progressBar2.visibility = View.GONE
-            adapter.submitList(drills) // submitList ใช้กับ ListAdapter
+            adapter.submitList(drills)
         }
 
-        //แสดง progressBar ขณะโหลดข้อมูล
         binding.progressBar2.visibility = View.VISIBLE
 
         binding.backBtn.setOnClickListener {
@@ -62,10 +56,17 @@ class ListDrillFragment : Fragment(), DrillListener {
         }
     }
 
-    // Implement the DrillListener method
+    // ✅ ตรงนี้แหละที่เพิ่ม — เวลา click จะไปหน้า DrillDetailFragment
     override fun onDrillClicked(drill: drillModel) {
-        // Handle drill click event here
-        // คุณสามารถทำอะไรเมื่อคลิกที่รายการได้ที่นี่ เช่น แสดงรายละเอียดเพิ่มเติม
+        val detailFragment = DrillDetailFragment.newInstance(drill)
+
+        parentFragmentManager.commit {
+            replace(
+                com.example.myproject.R.id.container_main, // container ที่ MainActivity ใช้
+                detailFragment
+            )
+            addToBackStack(null) // กด back แล้วกลับมา List ได้
+        }
     }
 
     override fun onDestroyView() {

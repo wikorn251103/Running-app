@@ -2,6 +2,8 @@ package com.example.myproject.Fragment.article.detail
 
 import android.os.Bundle
 import coil.load
+import com.example.myproject.Fragment.article.list.ArticlesFragment
+import com.example.myproject.MainActivity
 import com.example.myproject.corre.BaseFragment
 import com.example.myproject.data.article.ArticleModel
 import com.example.myproject.databinding.FragmentDetailArticleBinding
@@ -23,7 +25,7 @@ class DetailArticleFragment : BaseFragment<FragmentDetailArticleBinding>(Fragmen
         binding.imageView.load(article.imageUrl)
 
         binding.backArrow.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            (activity as? MainActivity)?.replaceFragment(ArticlesFragment.newInstance())
         }
     }
 

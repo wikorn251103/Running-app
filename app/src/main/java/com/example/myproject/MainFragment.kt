@@ -1,7 +1,7 @@
 package com.example.myproject
 
 import androidx.fragment.app.Fragment
-import com.example.myproject.Fragment.profile.ProfileFragment
+import com.example.Fragment.profile.ProfileFragment
 import com.example.myproject.Fragment.TrainingScheduleFragment
 import com.example.myproject.Fragment.article.list.ArticlesFragment
 import com.example.myproject.Fragment.home.HomeFragment

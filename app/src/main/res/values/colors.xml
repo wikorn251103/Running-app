@@ -9,4 +9,35 @@
     <color name="grey_bg">#E2E8F0</color>
     <color name="text_blue_900">#1e3a8a</color>
     <color name="text_blue_800">#1e40af </color>
+
+    <!-- Primary Colors -->
+    <color name="primary_color">#8B5CF6</color>
+    <color name="primary_ripple">#4C1D95</color>
+    <color name="purple_100">#F3E8FF</color>
+    <color name="purple_200">#E9D5FF</color>
+    <color name="purple_300">#D8B4FE</color>
+    <color name="purple_400">#C084FC</color>
+    <color name="purple_500">#A855F7</color>
+    <color name="purple_600">#9333EA</color>
+    <color name="purple_700">#7C3AED</color>
+    <color name="purple_800">#6B21A8</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#1F2937</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_tertiary">#9CA3AF</color>
+
+    <!-- Background Colors -->
+    <color name="bg_surface">#FFFFFF</color>
+    <color name="bg_secondary">#F9FAFB</color>
+
+    <!-- Accent Colors -->
+    <color name="accent_pink">#EC4899</color>
+    <color name="accent_orange">#F59E0B</color>
+    <color name="accent_green">#10B981</color>
+    <color name="accent_blue">#3B82F6</color>
+
+    <!-- Shadow and Border -->
+    <color name="shadow_light">#10000000</color>
+    <color name="border_light">#E5E7EB</color>
 </resources>

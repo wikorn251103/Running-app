@@ -12,6 +12,7 @@ class ArticleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val imageView: ImageView = itemView.findViewById(R.id.imageView)
     val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
     val tvDescription: TextView = itemView.findViewById(R.id.tvDescription)
+    val btnReadMore: TextView = itemView.findViewById(R.id.btnReadMore)
 
     fun bind(article: ArticleModel) {
         tvTitle.text = article.title
@@ -21,4 +22,5 @@ class ArticleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             .placeholder(R.drawable.ic_launcher_background)
             .into(imageView)
     }
+
 }

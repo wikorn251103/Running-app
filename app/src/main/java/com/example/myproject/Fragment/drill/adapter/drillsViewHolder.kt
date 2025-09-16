@@ -9,7 +9,7 @@ import com.example.myproject.R
 import com.example.myproject.data.article.drill.drillModel
 
 class drillsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val imageView: ImageView = itemView.findViewById(R.id.imageView)
+
     val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
     val tvSubtitle: TextView = itemView.findViewById(R.id.tvSubtitle)
     val tvDescription: TextView = itemView.findViewById(R.id.tvDescription)

@@ -78,4 +78,7 @@ class ArticlesFragment : Fragment(), ArticleListener {
             .addToBackStack(null)
             .commit()
     }
+    companion object{
+        fun newInstance() = ArticlesFragment()
+    }
 }

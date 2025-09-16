@@ -1,6 +1,8 @@
 package com.example.myproject.Fragment.target
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -33,9 +35,6 @@ class TargetDistanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.provBtn.setOnClickListener {
-            requireActivity().onBackPressed()
-        }
         //คลิกปุ่มย้อนกลับ
         binding.provBtn.setOnClickListener {
             requireActivity().onBackPressed()
@@ -54,6 +53,7 @@ class TargetDistanceFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         //ทำการล้างค่า _binding เมื่อ Fragment ถูกทำลาย เพื่อป้องกัน memory leak
         _binding = null
     }
