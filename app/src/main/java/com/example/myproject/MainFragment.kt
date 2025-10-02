@@ -1,8 +1,9 @@
 package com.example.myproject
 
+import android.view.View
 import androidx.fragment.app.Fragment
 import com.example.Fragment.profile.ProfileFragment
-import com.example.myproject.Fragment.TrainingScheduleFragment
+import com.example.myproject.Fragment.training.TrainingScheduleFragment
 import com.example.myproject.Fragment.article.list.ArticlesFragment
 import com.example.myproject.Fragment.home.HomeFragment
 import com.example.myproject.corre.BaseFragment
@@ -37,13 +38,17 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
             }
         }
     }
-
-    private fun replaceFragment(fragment: Fragment) {
-        parentFragmentManager.beginTransaction()
-            .replace(binding.container.id,fragment)
-            .commit()
+    //method
+    fun setBottomNavVisible(isVisible: Boolean) {
+        binding.bottomNavigation.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
+    private fun replaceFragment(fragment: Fragment) {
+        childFragmentManager.beginTransaction()
+            .replace(binding.container.id, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
     companion object {
         fun newInstance() = MainFragment()
     }

@@ -13,9 +13,9 @@ import com.example.myproject.Fragment.drill.adapter.drillsAdapter
 import com.example.myproject.Fragment.drill.detail.DrillDetailFragment
 import com.example.myproject.Fragment.drill.list.drillsViewModel
 import com.example.myproject.Fragment.drill.list.drillsViewModelFactory
-import com.example.myproject.data.article.drill.drillModel
-import com.example.myproject.data.article.drill.drillRepositoryImpl
-import com.example.myproject.data.article.drill.drillServiceImpl
+import com.example.myproject.data.drill.drillModel
+import com.example.myproject.data.drill.drillRepositoryImpl
+import com.example.myproject.data.drill.drillServiceImpl
 import com.example.myproject.databinding.FragmentListDrillBinding
 
 class ListDrillFragment : Fragment(), DrillListener {

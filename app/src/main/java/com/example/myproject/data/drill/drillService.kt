@@ -1,6 +1,5 @@
-package com.example.myproject.data.article.drill
+package com.example.myproject.data.drill
 
-import com.example.myproject.data.article.ArticleModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.channels.awaitClose

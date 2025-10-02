@@ -2,7 +2,7 @@ package com.example.myproject.Fragment.drill.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.myproject.data.article.drill.drillRepository
+import com.example.myproject.data.drill.drillRepository
 
 class drillsViewModelFactory(
     private val repository: drillRepository

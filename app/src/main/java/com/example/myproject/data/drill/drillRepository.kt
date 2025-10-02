@@ -1,4 +1,4 @@
-package com.example.myproject.data.article.drill
+package com.example.myproject.data.drill
 
 import kotlinx.coroutines.flow.Flow
 

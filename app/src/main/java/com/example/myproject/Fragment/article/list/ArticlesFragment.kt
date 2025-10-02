@@ -70,11 +70,10 @@ class ArticlesFragment : Fragment(), ArticleListener {
     }
 
     override fun onArticleClicked(article: ArticleModel) {
-        Log.d("ArticleFragment", "onArticleClicked: $article")
         val detailFragment = DetailArticleFragment.newInstance(article)
 
         parentFragmentManager.beginTransaction()
-            .replace(R.id.container_main, detailFragment)
+            .replace(R.id.container, detailFragment)
             .addToBackStack(null)
             .commit()
     }

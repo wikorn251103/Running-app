@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myproject.data.article.drill.drillModel
-import com.example.myproject.data.article.drill.drillRepository
+import com.example.myproject.data.drill.drillModel
+import com.example.myproject.data.drill.drillRepository
 import kotlinx.coroutines.launch
 
 class drillsViewModel(private val repository: drillRepository) : ViewModel() {

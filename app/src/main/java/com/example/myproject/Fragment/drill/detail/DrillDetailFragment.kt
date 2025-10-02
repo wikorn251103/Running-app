@@ -3,7 +3,7 @@ package com.example.myproject.Fragment.drill.detail
 import android.net.Uri
 import android.os.Bundle
 import com.example.myproject.corre.BaseFragment
-import com.example.myproject.data.article.drill.drillModel
+import com.example.myproject.data.drill.drillModel
 import com.example.myproject.databinding.FragmentDrillDetailBinding
 
 class DrillDetailFragment :

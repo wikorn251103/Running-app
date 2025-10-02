@@ -1,7 +1,7 @@
 package com.example.myproject.Fragment.drill.adapter
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.myproject.data.article.drill.drillModel
+import com.example.myproject.data.drill.drillModel
 
 class drillsDiffCallback : DiffUtil.ItemCallback<drillModel>() {
     override fun areItemsTheSame(oldItem: drillModel, newItem: drillModel): Boolean {

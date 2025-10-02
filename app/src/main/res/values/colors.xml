@@ -32,7 +32,7 @@
     <color name="bg_secondary">#F9FAFB</color>
 
     <!-- Accent Colors -->
-    <color name="accent_pink">#EC4899</color>
+    <color name="accent_red">#E53935</color>
     <color name="accent_orange">#F59E0B</color>
     <color name="accent_green">#10B981</color>
     <color name="accent_blue">#3B82F6</color>

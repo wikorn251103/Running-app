@@ -4,9 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myproject.Fragment.drill.ListDrillFragment
 import com.example.myproject.R
-import com.example.myproject.data.article.drill.drillModel
+import com.example.myproject.data.drill.drillModel
 
 class drillsAdapter(private val listener: DrillListener) : ListAdapter<drillModel, drillsViewHolder>(drillsDiffCallback()){
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): drillsViewHolder {

@@ -1,6 +1,7 @@
 package com.example.myproject.Fragment.article.detail
 
 import android.os.Bundle
+import android.util.Log
 import coil.load
 import com.example.myproject.Fragment.article.list.ArticlesFragment
 import com.example.myproject.MainActivity
@@ -10,6 +11,8 @@ import com.example.myproject.databinding.FragmentDetailArticleBinding
 
 class DetailArticleFragment : BaseFragment<FragmentDetailArticleBinding>(FragmentDetailArticleBinding::inflate) {
 
+    // Fragment นี้ไม่ต้องการให้แสดง bottom nav
+    override val hideBottomNav = true
     private lateinit var article: ArticleModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +28,7 @@ class DetailArticleFragment : BaseFragment<FragmentDetailArticleBinding>(Fragmen
         binding.imageView.load(article.imageUrl)
 
         binding.backArrow.setOnClickListener {
-            (activity as? MainActivity)?.replaceFragment(ArticlesFragment.newInstance())
+            parentFragmentManager.popBackStack()
         }
     }
 

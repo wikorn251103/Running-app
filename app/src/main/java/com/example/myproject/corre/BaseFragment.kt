@@ -14,6 +14,9 @@ abstract class BaseFragment<Binding : ViewBinding>(
     private var _binding: Binding? = null
     val binding get() = _binding!!
 
+    // เพิ่ม flag ที่ override ได้ใน subclass
+    open val hideBottomNav: Boolean = false
+
     abstract fun initViews()
 
     override fun onCreateView(
@@ -27,11 +30,20 @@ abstract class BaseFragment<Binding : ViewBinding>(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // ซ่อน/แสดง BottomNav ตาม flag
+        (parentFragment as? com.example.myproject.MainFragment)?.setBottomNavVisible(!hideBottomNav)
+
         initViews()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+
+        // BottomNav กลับเมื่อ Fragment นี้โดน pop (ถ้าก่อนหน้านี้ซ่อน)
+        if (hideBottomNav) {
+            (parentFragment as? com.example.myproject.MainFragment)?.setBottomNavVisible(true)
+        }
     }
 }

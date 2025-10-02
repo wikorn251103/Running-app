@@ -6,33 +6,52 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.example.myproject.Fragment.loginandregister.SignUpState
+import com.example.myproject.Fragment.loginandregister.SignUpViewModel
 import com.example.myproject.MainActivity
 import com.example.myproject.R
+import com.example.myproject.data.signup.UserModel
 import com.example.myproject.databinding.FragmentSignUpBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.collectLatest
 
 class SignUpFragment : Fragment() {
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
-
     private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: SignUpViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSignUpBinding.inflate(inflater, container, false)
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // ฟัง state จาก ViewModel
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.signUpState.collectLatest { state ->
+                when (state) {
+                    is SignUpState.Idle -> {}
+                    is SignUpState.Loading -> {
+                        Toast.makeText(context, "กำลังสมัครสมาชิก...", Toast.LENGTH_SHORT).show()
+                    }
+                    is SignUpState.Success -> {
+                        Toast.makeText(context, "สมัครสมาชิกสำเร็จ: ${state.user.name}", Toast.LENGTH_SHORT).show()
+                        (activity as? MainActivity)?.replaceFragment(SignInFragment.newInstance())
+                    }
+                    is SignUpState.Error -> {
+                        Toast.makeText(context, "เกิดข้อผิดพลาด: ${state.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
 
         binding.button.setOnClickListener {
             val name = binding.editTextName.text.toString().trim()
@@ -54,34 +73,18 @@ class SignUpFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener { result ->
-                    val uid = result.user?.uid ?: return@addOnSuccessListener
+            // ✅ ใช้ UserModel
+            val user = UserModel(
+                name = name,
+                email = email,
+                height = height,
+                weight = weight,
+                age = age,
+                gender = gender,
+                uid = "" // uid จะถูกเซ็ตตอน Firebase auth เสร็จ
+            )
 
-                    val userData = hashMapOf(
-                        "uid" to uid,
-                        "name" to name,
-                        "email" to email,
-                        "height" to height,
-                        "weight" to weight,
-                        "age" to age,
-                        "gender" to gender
-                    )
-
-                    db.collection("users").document(uid)
-                        .set(userData)
-                        .addOnSuccessListener {
-                            Toast.makeText(context, "สมัครสมาชิกสำเร็จ", Toast.LENGTH_SHORT).show()
-                            // เปลี่ยนไปหน้า LoginFragment (แก้ตามที่คุณต้องการ)
-                            (activity as? MainActivity)?.replaceFragment(SignInFragment.newInstance())
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(context, "เกิดข้อผิดพลาดในการบันทึกข้อมูล", Toast.LENGTH_SHORT).show()
-                        }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(context, "สมัครไม่สำเร็จ: ${it.message}", Toast.LENGTH_SHORT).show()
-                }
+            viewModel.signUp(user, password)
         }
 
         binding.logintxt.setOnClickListener {
