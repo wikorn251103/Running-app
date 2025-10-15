@@ -8,5 +8,6 @@ data class UserModel(
     val weight: Double = 0.0,
     val age: Int = 0,
     val gender: String = "",
-    val trainingPlan: String? = null
+    val trainingPlan: String? = null,
+    val role: String = "user"
 )

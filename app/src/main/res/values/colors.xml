@@ -40,4 +40,5 @@
     <!-- Shadow and Border -->
     <color name="shadow_light">#10000000</color>
     <color name="border_light">#E5E7EB</color>
+    <color name="_white">#f5f5f5</color>
 </resources>

@@ -32,7 +32,8 @@ class SignUpAdapter(
                 weight = weight,
                 age = age,
                 gender = gender,
-                trainingPlan = "" // กำหนดค่าเริ่มต้นได้
+                trainingPlan = "",
+                role = "user"// กำหนดค่าเริ่มต้นได้
             )
 
             // ✅ บันทึกลง Firestore โดยตรง

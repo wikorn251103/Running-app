@@ -4,19 +4,48 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="_20_00">20:00</string>
 
-        <string name="app_icon">App Icon</string>
-        <string name="app_title">Recommended running practice</string>
-        <string name="app_subtitle">แอปพลิเคชันสำหรับคุณ</string>
-        <string name="choose_schedule">เลือกตารางซ้อมวิ่งของคุณ</string>
-        <string name="choose_schedule_description">เริ่มต้นการเดินทางสู่การวิ่งที่ดีกว่าด้วยโปรแกรมที่เหมาะสมกับคุณ</string>
-        <string name="start_training">เริ่มต้นการซ้อม</string>
-        <string name="choose_suitable_program">เลือกโปรแกรมที่เหมาะสมกับคุณ</string>
-        <string name="start_training_description">พร้อมเริ่มการวิ่งแล้วหรือยัง? เลือกโปรแกรมการซ้อมที่เหมาะสมกับระดับความสามารถของคุณ</string>
-        <string name="programs_available">3 โปรแกรมให้เลือก</string>
-        <string name="additional_features">ฟีเจอร์เสริม</string>
-        <string name="additional_features_description">เครื่องมือและความรู้เพิ่มเติมเพื่อการวิ่งที่ดีขึ้น</string>
-        <string name="drill_title">การดริลเพื่อท่าทางถูกต้อง</string>
-        <string name="drill_description">ปรับปรุงท่าวิ่งให้มีประสิทธิภาพและลดการบาดเจ็บ</string>
-        <string name="progress_title">ติดตามความก้าวหน้า</string>
-        <string name="progress_description">สถิติและกราฟแสดงพัฒนาการของคุณ</string>
+    <string name="app_icon">App Icon</string>
+    <string name="app_title">Recommended running practice</string>
+    <string name="app_subtitle">แอปพลิเคชันสำหรับคุณ</string>
+    <string name="choose_schedule">เลือกตารางซ้อมวิ่งของคุณ</string>
+    <string name="choose_schedule_description">เริ่มต้นการเดินทางสู่การวิ่งที่ดีกว่าด้วยโปรแกรมที่เหมาะสมกับคุณ</string>
+    <string name="start_training">เริ่มต้นการซ้อม</string>
+    <string name="choose_suitable_program">เลือกโปรแกรมที่เหมาะสมกับคุณ</string>
+    <string name="start_training_description">พร้อมเริ่มการวิ่งแล้วหรือยัง? เลือกโปรแกรมการซ้อมที่เหมาะสมกับระดับความสามารถของคุณ</string>
+    <string name="programs_available">3 โปรแกรมให้เลือก</string>
+    <string name="additional_features">ฟีเจอร์เสริม</string>
+    <string name="additional_features_description">เครื่องมือและความรู้เพิ่มเติมเพื่อการวิ่งที่ดีขึ้น</string>
+    <string name="drill_title">การดริลเพื่อท่าทางถูกต้อง</string>
+    <string name="drill_description">ปรับปรุงท่าวิ่งให้มีประสิทธิภาพและลดการบาดเจ็บ</string>
+    <string name="progress_title">ติดตามความก้าวหน้า</string>
+    <string name="progress_description">สถิติและกราฟแสดงพัฒนาการของคุณ</string>
+
+    <!-- Exercise Types -->
+    <string-array name="exercise_types">
+        <item>Easy Run</item>
+        <item>Interval</item>
+        <item>ฝึกเท้า</item>
+        <item>Tempo</item>
+        <item>Recovery</item>
+        <item>Long Run</item>
+        <item>ฝึกเท้า</item>
+    </string-array>
+
+    <!-- Days of Week (Thai) -->
+    <string-array name="days_of_week">
+        <item>จันทร์</item>
+        <item>อังคาร</item>
+        <item>พุธ</item>
+        <item>พฤหัสบดี</item>
+        <item>ศุกร์</item>
+        <item>เสาร์</item>
+        <item>อาทิตย์</item>
+    </string-array>
+
+    <!-- Program Status -->
+    <string-array name="program_status">
+        <item>แก้ไข</item>
+        <item>เปิด</item>
+        <item>ปิด</item>
+    </string-array>
 </resources>

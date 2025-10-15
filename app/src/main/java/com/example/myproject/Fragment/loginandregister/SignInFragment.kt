@@ -6,16 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.myproject.Fragment.home.HomeFragment
+import com.example.myproject.Fragment.admin.AdminProgramFragment
 import com.example.myproject.databinding.FragmentSignInBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.example.myproject.MainActivity
 import com.example.myproject.MainFragment
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class SignInFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
     private var _binding: FragmentSignInBinding? = null
     private val binding get() = _binding!!
 
@@ -25,6 +27,7 @@ class SignInFragment : Fragment() {
     ): View {
         _binding = FragmentSignInBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
         return binding.root
     }
 
@@ -42,10 +45,29 @@ class SignInFragment : Fragment() {
             }
 
             auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener {
-                    Toast.makeText(context, "เข้าสู่ระบบสำเร็จ", Toast.LENGTH_SHORT).show()
-                    // เปลี่ยน Fragment ไปหน้าโปรไฟล์
-                    (activity as? MainActivity)?.replaceFragment(MainFragment.newInstance())
+                .addOnSuccessListener { result ->
+                    val uid = result.user?.uid ?: return@addOnSuccessListener
+
+                    // ดึง role จาก Firestore
+                    db.collection("users").document(uid).get()
+                        .addOnSuccessListener { document ->
+                            if (document.exists()) {
+                                val role = document.getString("role") ?: "user"
+
+                                if (role == "admin") {
+                                    Toast.makeText(context, "เข้าสู่ระบบในโหมดผู้ดูแลระบบ", Toast.LENGTH_SHORT).show()
+                                    (activity as? MainActivity)?.replaceFragment(AdminProgramFragment.newInstance())
+                                } else {
+                                    Toast.makeText(context, "เข้าสู่ระบบในโหมดผู้ใช้ทั่วไป", Toast.LENGTH_SHORT).show()
+                                    (activity as? MainActivity)?.replaceFragment(MainFragment.newInstance())
+                                }
+                            } else {
+                                Toast.makeText(context, "ไม่พบข้อมูลผู้ใช้ในระบบ", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "เกิดข้อผิดพลาดในการดึงข้อมูล: ${it.message}", Toast.LENGTH_SHORT).show()
+                        }
                 }
                 .addOnFailureListener {
                     Toast.makeText(context, "เข้าสู่ระบบไม่สำเร็จ: ${it.message}", Toast.LENGTH_SHORT).show()
