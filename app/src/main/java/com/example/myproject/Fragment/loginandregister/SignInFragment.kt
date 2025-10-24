@@ -4,15 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.myproject.Fragment.admin.AdminProgramFragment
+import com.example.myproject.Fragment.admins.AdminDashboardFragment // ✅ เพิ่ม import
 import com.example.myproject.databinding.FragmentSignInBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.example.myproject.MainActivity
 import com.example.myproject.MainFragment
+import com.example.myproject.R
 import com.google.firebase.firestore.FirebaseFirestore
-
 
 class SignInFragment : Fragment() {
 
@@ -56,7 +57,8 @@ class SignInFragment : Fragment() {
 
                                 if (role == "admin") {
                                     Toast.makeText(context, "เข้าสู่ระบบในโหมดผู้ดูแลระบบ", Toast.LENGTH_SHORT).show()
-                                    (activity as? MainActivity)?.replaceFragment(AdminProgramFragment.newInstance())
+                                    // ✅ เปิดหน้า Admin Dashboard
+                                    (activity as? MainActivity)?.replaceFragment(AdminDashboardFragment.newInstance())
                                 } else {
                                     Toast.makeText(context, "เข้าสู่ระบบในโหมดผู้ใช้ทั่วไป", Toast.LENGTH_SHORT).show()
                                     (activity as? MainActivity)?.replaceFragment(MainFragment.newInstance())
@@ -76,7 +78,12 @@ class SignInFragment : Fragment() {
 
         // ปุ่มสมัครสมาชิก
         binding.registerTxt.setOnClickListener {
-            (activity as? MainActivity)?.replaceFragment(SignUpFragment.newInstance())
+            val anim = AnimationUtils.loadAnimation(requireContext(), R.anim.bounce)
+            it.startAnimation(anim)
+
+            it.postDelayed({
+                (activity as? MainActivity)?.replaceFragment(SignUpFragment.newInstance())
+            }, 200)
         }
     }
 

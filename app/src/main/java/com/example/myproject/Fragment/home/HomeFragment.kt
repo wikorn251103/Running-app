@@ -10,13 +10,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myproject.Fragment.workout.WorkoutHistoryFragment
 import com.example.myproject.Fragment.drill.ListDrillFragment
 import com.example.myproject.Fragment.target.TargetDistanceFragment
 import com.example.myproject.MainActivity
 import com.example.myproject.R
 import com.example.myproject.databinding.FragmentHomeBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 
 class HomeFragment : Fragment() {
@@ -24,10 +28,11 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    // ViewModel
     private val viewModel: HomeViewModel by viewModels()
 
-    // SharedPreferences
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
+    private val auth by lazy { FirebaseAuth.getInstance() }
+
     private val sharedPreferences by lazy {
         requireContext().getSharedPreferences("running_app_prefs", Context.MODE_PRIVATE)
     }
@@ -48,25 +53,19 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Setup RecyclerView
         binding.recyclerTrainingDays.layoutManager = LinearLayoutManager(requireContext())
 
-        // Observe ViewModel
         observeViewModel()
-
-        // Setup Click Listeners
         setupClickListeners()
     }
 
     override fun onResume() {
         super.onResume()
-        // โหลดสถานะทุกครั้งที่กลับมาหน้านี้
         Log.d(TAG, "onResume - reloading UI state")
-        loadAndUpdateUIState()
+        syncProgramFromFirebase()
     }
 
     private fun setupClickListeners() {
-        // ======= STATE 1: ยังไม่เลือกตารางซ้อม =======
         binding.nextBtn.setOnClickListener {
             binding.nextBtn.setColorFilter(ContextCompat.getColor(requireContext(), R.color.yellow))
             (activity as? MainActivity)?.replaceFragment(TargetDistanceFragment.newInstance())
@@ -76,9 +75,7 @@ class HomeFragment : Fragment() {
             (activity as? MainActivity)?.replaceFragment(TargetDistanceFragment.newInstance())
         }
 
-        // ======= STATE 2: เลือกตารางซ้อมแล้ว =======
         binding.mainProgramCard.setOnClickListener {
-            // TODO: ไปหน้ารายละเอียดโปรแกรม
             Toast.makeText(requireContext(), "ไปหน้ารายละเอียดโปรแกรม", Toast.LENGTH_SHORT).show()
         }
 
@@ -87,59 +84,166 @@ class HomeFragment : Fragment() {
         }
 
         binding.subProgramCard.setOnClickListener {
-            // TODO: ไปหน้ารายการโปรแกรมย่อย
             Toast.makeText(requireContext(), "ไปหน้าโปรแกรมย่อย", Toast.LENGTH_SHORT).show()
         }
 
-        // ======= ฟีเจอร์เสริม =======
         binding.startDrill.setOnClickListener {
-            (activity as? MainActivity)?.replaceFragment(ListDrillFragment.newInstance())
+            (activity as? MainActivity)?.supportFragmentManager?.commit {
+                replace(R.id.container_main, ListDrillFragment.newInstance())
+                addToBackStack(null)
+            }
         }
 
         binding.trackProgress.setOnClickListener {
-            // TODO: ไปหน้าติดตามความก้าวหน้า
-            Toast.makeText(requireContext(), "ไปหน้าติดตามความก้าวหน้า", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), "ไปหน้าติดตามความก้าวหน้า", Toast.LENGTH_SHORT).show()
+            (activity as? MainActivity)?.replaceFragment(WorkoutHistoryFragment.newInstance())
         }
+    }
+
+    private fun syncProgramFromFirebase() {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            Log.e(TAG, "❌ User not logged in")
+            loadAndUpdateUIState()
+            return
+        }
+
+        Log.d(TAG, "🔄 Syncing program from Firebase for userId: $userId")
+        binding.progressBar?.visibility = View.VISIBLE
+
+        firestore.collection("Athletes")
+            .document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                Log.d(TAG, "✅ Athletes document fetched. Exists: ${document.exists()}")
+
+                if (document.exists()) {
+                    val isActive = document.getBoolean("isActive") ?: false
+                    val programId = document.getString("programId") ?: ""
+                    val programDisplayName = document.getString("programDisplayName") ?: ""
+                    val subProgramName = document.getString("subProgramName") ?: "โปรแกรมย่อย 5K"
+
+                    Log.d(TAG, "Program data - isActive: $isActive, programId: $programId")
+
+                    if (isActive && programId.isNotEmpty()) {
+                        sharedPreferences.edit().apply {
+                            putBoolean("program_selected", true)
+                            putString("selected_program_name", programId)
+                            putString("selected_program_display_name", programDisplayName)
+                            putString("selected_sub_program_name", subProgramName)
+                            apply()
+                        }
+                        Log.d(TAG, "✅ Synced from Firebase: $programId")
+                    } else {
+                        Log.d(TAG, "⚠️ Program not active or empty, clearing selection")
+                        clearProgramSelection()
+                    }
+                } else {
+                    Log.d(TAG, "⚠️ No Athletes document found, clearing selection")
+                    clearProgramSelection()
+                }
+
+                binding.progressBar?.visibility = View.GONE
+                loadAndUpdateUIState()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "❌ Failed to sync from Firebase: ${e.message}", e)
+                binding.progressBar?.visibility = View.GONE
+                loadAndUpdateUIState()
+            }
     }
 
     private fun showExitProgramDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("ออกจากตารางซ้อม")
-            .setMessage("คุณต้องการออกจากตารางซ้อมนี้หรือไม่? ความก้าวหน้าจะถูกรีเซ็ต")
+            .setMessage("คุณต้องการออกจากตารางซ้อมนี้หรือไม่? ข้อมูลทั้งหมดจะถูกรีเซ็ตและคุณสามารถเลือกโปรแกรมใหม่ได้")
             .setPositiveButton("ออกจากโปรแกรม") { _, _ ->
-                clearProgramSelection()
-                Toast.makeText(requireContext(), "ออกจากโปรแกรมเรียบร้อย", Toast.LENGTH_SHORT).show()
+                resetProgramCompletelyFromFirebase()
             }
             .setNegativeButton("ยกเลิก", null)
             .show()
     }
 
+    /**
+     * ⭐ รีเซ็ตโปรแกรมทั้งหมดจาก Firebase - ลบข้อมูลออกทั้งหมด
+     */
+    private fun resetProgramCompletelyFromFirebase() {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            Log.e(TAG, "❌ User not logged in")
+            clearProgramSelection()
+            return
+        }
+
+        Log.d(TAG, "🗑️ Resetting program completely from Firebase")
+        binding.progressBar?.visibility = View.VISIBLE
+
+        // ⭐ ลบ document ใน Athletes/{userId} ออกทั้งหมด
+        firestore.collection("Athletes")
+            .document(userId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "✅ Athletes document deleted from Firebase")
+
+                // เคลียร์ Local
+                clearProgramSelection()
+
+                binding.progressBar?.visibility = View.GONE
+                Toast.makeText(requireContext(), "ออกจากโปรแกรมและรีเซ็ตเรียบร้อย", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "❌ Failed to delete Athletes document: ${e.message}", e)
+
+                // ถ้าลบไม่ได้ ลอง update เป็น inactive
+                firestore.collection("Athletes")
+                    .document(userId)
+                    .update(
+                        mapOf(
+                            "isActive" to false,
+                            "programId" to "",
+                            "programDisplayName" to "",
+                            "subProgramName" to "",
+                            "exitedAt" to System.currentTimeMillis()
+                        )
+                    )
+                    .addOnSuccessListener {
+                        Log.d(TAG, "✅ Program reset by update")
+                        clearProgramSelection()
+                        binding.progressBar?.visibility = View.GONE
+                        Toast.makeText(requireContext(), "ออกจากโปรแกรมเรียบร้อย", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { updateError ->
+                        Log.e(TAG, "❌ Failed to update: ${updateError.message}", updateError)
+                        clearProgramSelection()
+                        binding.progressBar?.visibility = View.GONE
+                        Toast.makeText(requireContext(), "เกิดข้อผิดพลาด แต่ออกจากโปรแกรมแล้ว", Toast.LENGTH_SHORT).show()
+                    }
+            }
+    }
+
     private fun observeViewModel() {
-        // Observe training plan data
         viewModel.trainingPlan.observe(viewLifecycleOwner) { weeks ->
             if (weeks.isNotEmpty()) {
-                Log.d(TAG, "Training plan received: ${weeks.keys}")
+                Log.d(TAG, "✅ Training plan received: ${weeks.keys}")
 
-                // แสดงเฉพาะวันปัจจุบัน
                 val todayTraining = getTodayTraining(weeks)
 
                 if (todayTraining != null) {
                     binding.recyclerTrainingDays.adapter = TrainingDayAdapter(listOf(todayTraining))
                     Log.d(TAG, "Showing today's training: ${todayTraining.day}")
                 } else {
-                    // ถ้าไม่มีตารางวันนี้ แสดงข้อความ
                     binding.recyclerTrainingDays.adapter = TrainingDayAdapter(emptyList())
-                    Log.d(TAG, "No training scheduled for today")
+                    Log.d(TAG, "⚠️ No training scheduled for today")
                 }
+            } else {
+                Log.w(TAG, "⚠️ Training plan is empty")
             }
         }
 
-        // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // Observe errors
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
@@ -148,15 +252,10 @@ class HomeFragment : Fragment() {
         }
     }
 
-    /**
-     * หาตารางซ้อมของวันปัจจุบัน
-     */
     private fun getTodayTraining(weeks: Map<String, Map<String, com.example.myproject.data.training.TrainingModel>>): com.example.myproject.data.training.TrainingModel? {
-        // หาวันปัจจุบัน (Monday = 2, Tuesday = 3, ..., Sunday = 1)
         val calendar = Calendar.getInstance()
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
-        // แปลงเป็นชื่อวัน
         val todayName = when (dayOfWeek) {
             Calendar.MONDAY -> "Monday"
             Calendar.TUESDAY -> "Tuesday"
@@ -168,20 +267,18 @@ class HomeFragment : Fragment() {
             else -> ""
         }
 
-        Log.d(TAG, "Today is: $todayName")
+        Log.d(TAG, "🗓️ Today is: $todayName")
 
-        // ค้นหาในทุก week
         for ((weekKey, days) in weeks) {
             for ((dayKey, training) in days) {
-                // เช็คว่า day ตรงกับวันนี้หรือไม่
                 if (training.day?.contains(todayName, ignoreCase = true) == true) {
-                    Log.d(TAG, "Found training for $todayName in $weekKey: $dayKey")
+                    Log.d(TAG, "✅ Found training for $todayName in $weekKey: $dayKey")
                     return training
                 }
             }
         }
 
-        Log.d(TAG, "No training found for $todayName")
+        Log.d(TAG, "⚠️ No training found for $todayName")
         return null
     }
 
@@ -191,31 +288,27 @@ class HomeFragment : Fragment() {
         val displayName = sharedPreferences.getString("selected_program_display_name", "")
         val subProgramName = sharedPreferences.getString("selected_sub_program_name", "")
 
-        Log.d(TAG, "loadAndUpdateUIState - isProgramSelected: $isProgramSelected")
+        Log.d(TAG, "📊 loadAndUpdateUIState - isProgramSelected: $isProgramSelected")
         Log.d(TAG, "programName: $programName, displayName: $displayName")
 
         if (isProgramSelected && !programName.isNullOrEmpty()) {
-            // STATE 2: เลือกตารางซ้อมแล้ว
             binding.notSelectedStateCard.visibility = View.GONE
             binding.selectedStateLayout.visibility = View.VISIBLE
 
-            // อัพเดทชื่อโปรแกรม
             binding.mainProgramTitle.text = displayName?.ifEmpty { programName }
 
             if (!subProgramName.isNullOrEmpty()) {
                 binding.subProgramTitle.text = subProgramName
             }
 
-            // โหลดข้อมูลจาก ViewModel
-            viewModel.loadTrainingPlan(programName)
+            viewModel.loadTrainingPlanFromAthlete(programName)
 
-            Log.d(TAG, "UI switched to STATE 2")
+            Log.d(TAG, "✅ UI switched to STATE 2 (Program Selected)")
         } else {
-            // STATE 1: ยังไม่เลือกตารางซ้อม
             binding.notSelectedStateCard.visibility = View.VISIBLE
             binding.selectedStateLayout.visibility = View.GONE
 
-            Log.d(TAG, "UI switched to STATE 1")
+            Log.d(TAG, "ℹ️ UI switched to STATE 1 (No Program)")
         }
     }
 
@@ -226,7 +319,7 @@ class HomeFragment : Fragment() {
             putString("selected_sub_program_name", subProgramName)
             apply()
         }
-        Log.d(TAG, "Program saved: $programName")
+        Log.d(TAG, "✅ Program saved: $programName")
         loadAndUpdateUIState()
     }
 
@@ -238,7 +331,7 @@ class HomeFragment : Fragment() {
             remove("selected_sub_program_name")
             apply()
         }
-        Log.d(TAG, "Program selection cleared")
+        Log.d(TAG, "🗑️ Program selection cleared")
         loadAndUpdateUIState()
     }
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment.loginandregister.SignUpFragment">
+    tools:context=".Fragment.loginandregister.">
 
     <!-- โลโก้ -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -60,7 +60,7 @@
                 android:background="@drawable/edit_bg"
                 android:hint="ชื่อ"
                 android:textSize="14sp"
-                android:inputType="textPersonName"
+                android:inputType="textCapWords"
                 android:layout_marginBottom="16dp"/>
 
             <TextView

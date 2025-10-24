@@ -30,10 +30,6 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
                     replaceFragment(ProfileFragment())
                     true
                 }
-                R.id.bottom_upload -> {
-                    replaceFragment(SaveDataFragment.newInstance())
-                    true
-                }
                 else -> false
             }
         }

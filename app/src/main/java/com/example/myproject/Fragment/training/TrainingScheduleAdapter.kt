@@ -3,32 +3,35 @@ package com.example.myproject.Fragment.training
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myproject.R
 import com.example.myproject.data.training.TrainingModel
-import com.example.myproject.databinding.ItemTrainingDayBinding
 
-class TrainingScheduleAdapter : RecyclerView.Adapter<TrainingScheduleAdapter.TrainingViewHolder>() {
+class TrainingScheduleAdapter(
+    private val onStartWorkout: (TrainingModel, Int, Int) -> Unit // callback เมื่อกดเริ่มบันทึก
+) : RecyclerView.Adapter<TrainingScheduleAdapter.TrainingViewHolder>() {
 
     private var trainingDays = mutableListOf<TrainingModel>()
+    private var currentWeek: Int = 1
 
-    fun updateTrainingDays(newDays: List<TrainingModel>) {
+    fun updateTrainingDays(newDays: List<TrainingModel>, weekNumber: Int = 1) {
         trainingDays.clear()
         trainingDays.addAll(newDays)
+        currentWeek = weekNumber
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrainingViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_training_day, parent, false)
+            .inflate(R.layout.item_training_day_with_action, parent, false)
         return TrainingViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: TrainingViewHolder, position: Int) {
-        holder.bind(trainingDays[position])
+        holder.bind(trainingDays[position], position)
     }
 
     override fun getItemCount(): Int = trainingDays.size
@@ -39,6 +42,7 @@ class TrainingScheduleAdapter : RecyclerView.Adapter<TrainingScheduleAdapter.Tra
         private val tvDescription: TextView = itemView.findViewById(R.id.tvDescription)
         private val tvType: TextView = itemView.findViewById(R.id.tvType)
         private val tvPace: TextView = itemView.findViewById(R.id.tvPace)
+        private val btnStartWorkout: Button = itemView.findViewById(R.id.btnStartWorkout)
 
         private fun getDayName(dayNumber: Int): String {
             return when (dayNumber) {
@@ -53,13 +57,39 @@ class TrainingScheduleAdapter : RecyclerView.Adapter<TrainingScheduleAdapter.Tra
             }
         }
 
-        fun bind(trainingDay: TrainingModel) {
-            tvDay.text = trainingDay.day
-            tvDayName.text = getDayName(trainingDay.day.toIntOrNull() ?: 0)
+        fun bind(trainingDay: TrainingModel, position: Int) {
+            val dayNumber = position + 1
+
+            tvDay.text = dayNumber.toString()
+            tvDayName.text = getDayName(dayNumber)
             tvDescription.text = trainingDay.description
             tvType.text = trainingDay.type
 
-            // ตั้งสีพื้นหลังตามประเภท (ถ้ามี)
+            // ⭐ แสดงสถานะ 3 แบบ
+            when {
+                trainingDay.isCompleted -> {
+                    // ✅ ทำแล้ว
+                    itemView.alpha = 0.6f
+                    tvDay.text = "✅"
+                    btnStartWorkout.visibility = View.GONE
+                }
+                trainingDay.isMissed -> {
+                    // ❌ ขาดซ้อม
+                    itemView.alpha = 0.6f
+                    tvDay.text = "❌"
+                    btnStartWorkout.visibility = View.GONE
+                    itemView.setBackgroundColor(
+                        ContextCompat.getColor(itemView.context, R.color.light_red)
+                    )
+                }
+                else -> {
+                    // ⏳ รอทำ
+                    itemView.alpha = 1.0f
+                    btnStartWorkout.visibility = View.VISIBLE
+                }
+            }
+
+            // ตั้งสีพื้นหลังตามประเภท
             val typeColor = when (trainingDay.type.lowercase()) {
                 "easy" -> R.color.accent_green
                 "interval" -> R.color.accent_red
@@ -76,8 +106,11 @@ class TrainingScheduleAdapter : RecyclerView.Adapter<TrainingScheduleAdapter.Tra
             } else {
                 tvPace.visibility = View.GONE
             }
+
+            // ปุ่มเริ่มบันทึก
+            btnStartWorkout.setOnClickListener {
+                onStartWorkout(trainingDay, currentWeek, dayNumber)
+            }
         }
     }
 }
-
-

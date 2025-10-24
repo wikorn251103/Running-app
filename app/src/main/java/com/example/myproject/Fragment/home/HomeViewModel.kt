@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myproject.data.home.TrainingPlanRepository
 import com.example.myproject.data.training.TrainingModel
+import com.example.myproject.data.training.TrainingPlanRepository
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
@@ -21,27 +21,64 @@ class HomeViewModel : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
 
+    companion object {
+        private const val TAG = "HomeViewModel"
+    }
+
+    /**
+     * ⭐ ดึงข้อมูลจาก Athletes/{userId}
+     */
+    fun loadTrainingPlanFromAthlete(planId: String) {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                _error.value = null
+
+                Log.d(TAG, "📥 Loading training plan from Athletes for: $planId")
+
+                val result = repository.getTrainingPlanFromAthlete()
+
+                if (result.isNotEmpty()) {
+                    _trainingPlan.postValue(result)
+                    Log.d(TAG, "✅ Training plan loaded successfully from Athletes: ${result.keys}")
+                } else {
+                    _error.postValue("ไม่พบข้อมูลโปรแกรม")
+                    Log.w(TAG, "⚠️ Training plan is empty for: $planId")
+                }
+
+            } catch (e: Exception) {
+                _error.postValue("เกิดข้อผิดพลาด: ${e.message}")
+                Log.e(TAG, "❌ Error loading training plan from Athletes", e)
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    /**
+     * เก่า - ดึงจาก training_plans
+     */
     fun loadTrainingPlan(planId: String) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _error.value = null
 
-                Log.d("HomeViewModel", "Loading training plan: $planId")
+                Log.d(TAG, "📥 Loading training plan: $planId")
 
                 val result = repository.getTrainingPlan(planId)
 
                 if (result.isNotEmpty()) {
                     _trainingPlan.postValue(result)
-                    Log.d("HomeViewModel", "Training plan loaded successfully: ${result.keys}")
+                    Log.d(TAG, "✅ Training plan loaded successfully: ${result.keys}")
                 } else {
                     _error.postValue("ไม่พบข้อมูลโปรแกรม")
-                    Log.w("HomeViewModel", "Training plan is empty for: $planId")
+                    Log.w(TAG, "⚠️ Training plan is empty for: $planId")
                 }
 
             } catch (e: Exception) {
                 _error.postValue("เกิดข้อผิดพลาด: ${e.message}")
-                Log.e("HomeViewModel", "Error loading training plan", e)
+                Log.e(TAG, "❌ Error loading training plan", e)
             } finally {
                 _isLoading.postValue(false)
             }

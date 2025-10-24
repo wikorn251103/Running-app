@@ -8,15 +8,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myproject.Fragment.home.HomeFragment
 import com.example.myproject.Fragment.target.TargetDistanceFragment
+import com.example.myproject.Fragment.workout.RecordWorkoutFragment
 import com.example.myproject.MainActivity
 import com.example.myproject.R
+import com.example.myproject.data.training.TrainingModel
 import com.example.myproject.data.training.TrainingRepository
 import com.example.myproject.databinding.FragmentTrainingScheduleBinding
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class TrainingScheduleFragment : Fragment() {
@@ -27,7 +31,9 @@ class TrainingScheduleFragment : Fragment() {
     private lateinit var viewModel: TrainingScheduleViewModel
     private lateinit var trainingAdapter: TrainingScheduleAdapter
 
-    // ใช้ SharedPreferences เดียวกับ HomeFragment
+    private val auth by lazy { FirebaseAuth.getInstance() }
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
+
     private val sharedPreferences by lazy {
         requireContext().getSharedPreferences("running_app_prefs", Context.MODE_PRIVATE)
     }
@@ -55,7 +61,6 @@ class TrainingScheduleFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // สร้าง Repository และ ViewModel
         val firestore = FirebaseFirestore.getInstance()
         val repository = TrainingRepository(firestore)
         val factory = object : ViewModelProvider.Factory {
@@ -69,8 +74,11 @@ class TrainingScheduleFragment : Fragment() {
         }
         viewModel = ViewModelProvider(this, factory)[TrainingScheduleViewModel::class.java]
 
-        // Setup RecyclerView
-        trainingAdapter = TrainingScheduleAdapter()
+        // ⭐ Setup Adapter with callback
+        trainingAdapter = TrainingScheduleAdapter { trainingData, weekNumber, dayNumber ->
+            openRecordWorkoutFragment(trainingData, weekNumber, dayNumber)
+        }
+
         binding.recyclerViewTraining.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = trainingAdapter
@@ -79,11 +87,9 @@ class TrainingScheduleFragment : Fragment() {
         setupClickListeners()
         observeViewModel()
 
-        // โหลด plan จาก arguments หรือ SharedPreferences
         val planFromArgs = arguments?.getString(ARG_TRAINING_PLAN_ID)
         viewModel.selectedTrainingPlanId = planFromArgs ?: getSavedSelectedPlan()
 
-        // ถ้ามี planId → แสดงตาราง, ถ้าไม่มีก็แสดงหน้าเริ่มต้น
         if (viewModel.selectedTrainingPlanId != null) {
             showTrainingSchedule()
         } else {
@@ -94,29 +100,29 @@ class TrainingScheduleFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        // เช็คว่ายังมีโปรแกรมอยู่หรือไม่
         val isProgramSelected = sharedPreferences.getBoolean("program_selected", false)
 
         if (!isProgramSelected) {
-            // ถ้าไม่มีโปรแกรมแล้ว กลับไปหน้า Home
             Toast.makeText(requireContext(), "กรุณาเลือกโปรแกรมก่อน", Toast.LENGTH_SHORT).show()
             (activity as? MainActivity)?.replaceFragment(HomeFragment.newInstance())
+        } else {
+            // รีโหลดข้อมูลเพื่ออัพเดทติ๊กถูก
+            viewModel.currentWeek?.let { week ->
+                viewModel.loadTrainingWeekRealtime(week)
+            }
         }
     }
 
     private fun setupClickListeners() {
-        // ปุ่มเลือกแผนใหม่
         binding.btnStart.setOnClickListener {
             (activity as? MainActivity)?.replaceFragment(TargetDistanceFragment.newInstance())
         }
 
-        // ปุ่มเลือกสัปดาห์
         binding.btnWeek1.setOnClickListener { selectWeek(1) }
         binding.btnWeek2.setOnClickListener { selectWeek(2) }
         binding.btnWeek3.setOnClickListener { selectWeek(3) }
         binding.btnWeek4.setOnClickListener { selectWeek(4) }
 
-        // ปุ่มออกจากแผน - ต้องเคลียร์ทั้ง 2 ที่
         binding.btnExitPlan.setOnClickListener {
             showExitConfirmDialog()
         }
@@ -125,16 +131,65 @@ class TrainingScheduleFragment : Fragment() {
     private fun showExitConfirmDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("ออกจากตารางซ้อม")
-            .setMessage("คุณต้องการออกจากตารางซ้อมนี้หรือไม่? ความก้าวหน้าจะถูกรีเซ็ต")
+            .setMessage("คุณต้องการออกจากตารางซ้อมนี้หรือไม่? ข้อมูลทั้งหมดจะถูกรีเซ็ตและคุณสามารถเลือกโปรแกรมใหม่ได้")
             .setPositiveButton("ออกจากโปรแกรม") { _, _ ->
-                exitProgram()
+                resetProgramCompletelyFromFirebase()
             }
             .setNegativeButton("ยกเลิก", null)
             .show()
     }
 
-    private fun exitProgram() {
-        // เคลียร์ SharedPreferences ทั้งหมด (ทั้ง HomeFragment และ TrainingScheduleFragment)
+    /**
+     * ⭐ รีเซ็ตโปรแกรมทั้งหมดจาก Firebase
+     */
+    private fun resetProgramCompletelyFromFirebase() {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            clearLocalProgram()
+            return
+        }
+
+        binding.progressBar.visibility = View.VISIBLE
+
+        // ลบ document Athletes/{userId}
+        firestore.collection("Athletes")
+            .document(userId)
+            .delete()
+            .addOnSuccessListener {
+                clearLocalProgram()
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(requireContext(), "ออกจากโปรแกรมและรีเซ็ตเรียบร้อย", Toast.LENGTH_SHORT).show()
+                (activity as? MainActivity)?.replaceFragment(HomeFragment.newInstance())
+            }
+            .addOnFailureListener { e ->
+                // ถ้าลบไม่ได้ ลอง update
+                firestore.collection("Athletes")
+                    .document(userId)
+                    .update(
+                        mapOf(
+                            "isActive" to false,
+                            "programId" to "",
+                            "programDisplayName" to "",
+                            "subProgramName" to "",
+                            "exitedAt" to System.currentTimeMillis()
+                        )
+                    )
+                    .addOnSuccessListener {
+                        clearLocalProgram()
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(requireContext(), "ออกจากโปรแกรมเรียบร้อย", Toast.LENGTH_SHORT).show()
+                        (activity as? MainActivity)?.replaceFragment(HomeFragment.newInstance())
+                    }
+                    .addOnFailureListener { updateError ->
+                        clearLocalProgram()
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(requireContext(), "เกิดข้อผิดพลาด แต่ออกจากโปรแกรมแล้ว", Toast.LENGTH_SHORT).show()
+                        (activity as? MainActivity)?.replaceFragment(HomeFragment.newInstance())
+                    }
+            }
+    }
+
+    private fun clearLocalProgram() {
         sharedPreferences.edit().apply {
             putBoolean("program_selected", false)
             remove("selected_program_name")
@@ -142,19 +197,12 @@ class TrainingScheduleFragment : Fragment() {
             remove("selected_sub_program_name")
             apply()
         }
-
-        // เคลียร์ ViewModel
         viewModel.selectedTrainingPlanId = null
-
-        Toast.makeText(requireContext(), "ออกจากโปรแกรมเรียบร้อย", Toast.LENGTH_SHORT).show()
-
-        // กลับไปหน้า Home
-        (activity as? MainActivity)?.replaceFragment(HomeFragment.newInstance())
     }
 
     private fun observeViewModel() {
         viewModel.trainingDays.observe(viewLifecycleOwner) { days ->
-            trainingAdapter.updateTrainingDays(days)
+            trainingAdapter.updateTrainingDays(days, viewModel.currentWeek ?: 1)
         }
 
         viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
@@ -183,7 +231,6 @@ class TrainingScheduleFragment : Fragment() {
         binding.tvHeaderSubtitle.visibility = View.VISIBLE
         binding.btnExitPlan.visibility = View.VISIBLE
 
-        // เริ่มต้นที่สัปดาห์ที่ 1
         selectWeek(1)
     }
 
@@ -193,11 +240,7 @@ class TrainingScheduleFragment : Fragment() {
         resetWeekButtons()
         highlightSelectedWeek(week)
 
-        viewModel.selectedTrainingPlanId?.let { planId ->
-            viewModel.loadTrainingWeek(planId, week)
-        } ?: run {
-            Toast.makeText(context, "ไม่พบ Training Plan ID", Toast.LENGTH_SHORT).show()
-        }
+        viewModel.loadTrainingWeekRealtime(week)
     }
 
     private fun resetWeekButtons() {
@@ -220,9 +263,24 @@ class TrainingScheduleFragment : Fragment() {
         selectedButton.setTextColor(resources.getColor(R.color.white, null))
     }
 
-    // ใช้ SharedPreferences เดียวกับ HomeFragment
     private fun getSavedSelectedPlan(): String? {
         return sharedPreferences.getString("selected_program_name", null)
+    }
+
+    /**
+     * ⭐ เปิดหน้าบันทึกการซ้อม
+     */
+    private fun openRecordWorkoutFragment(
+        trainingData: TrainingModel,
+        weekNumber: Int,
+        dayNumber: Int
+    ) {
+        val fragment = RecordWorkoutFragment.newInstance(trainingData, weekNumber, dayNumber)
+
+        (activity as? MainActivity)?.supportFragmentManager?.commit {
+            replace(R.id.container_main, fragment)
+            addToBackStack(null)
+        }
     }
 
     override fun onDestroyView() {
@@ -230,5 +288,3 @@ class TrainingScheduleFragment : Fragment() {
         _binding = null
     }
 }
-
-

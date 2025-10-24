@@ -17,9 +17,5 @@
         android:title="โปรไฟล์"
         android:iconTint="@color/black"
         android:icon="@drawable/ic_account"/>
-    <item
-        android:id="@+id/bottom_upload"
-        android:title="บันทึก"
-        android:icon="@drawable/ic_save"
-        android:iconTint="@color/black"/>
+
 </menu>

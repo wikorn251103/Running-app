@@ -56,7 +56,7 @@ class ListDrillFragment : Fragment(), DrillListener {
         }
     }
 
-    // ✅ ตรงนี้แหละที่เพิ่ม — เวลา click จะไปหน้า DrillDetailFragment
+    // ตรงนี้แหละที่เพิ่ม — เวลา click จะไปหน้า DrillDetailFragment
     override fun onDrillClicked(drill: drillModel) {
         val detailFragment = DrillDetailFragment.newInstance(drill)
 

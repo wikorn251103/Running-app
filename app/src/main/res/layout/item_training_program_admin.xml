@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Program Name -->
+        <TextView
+            android:id="@+id/tvProgramName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="5K SUB25"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnEditProgram" />
+
+        <!-- Category -->
+        <TextView
+            android:id="@+id/tvProgramCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🏃 5K"
+            android:textSize="12sp"
+            android:textColor="@color/white"
+            android:background="@drawable/white_bg"
+            android:backgroundTint="@color/purple"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:layout_marginTop="6dp"
+            app:layout_constraintTop_toBottomOf="@id/tvProgramName"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Weeks -->
+        <TextView
+            android:id="@+id/tvProgramWeeks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📅 4 สัปดาห์"
+            android:textSize="12sp"
+            android:textColor="@color/grey_text"
+            android:layout_marginStart="8dp"
+            app:layout_constraintTop_toTopOf="@id/tvProgramCategory"
+            app:layout_constraintBottom_toBottomOf="@id/tvProgramCategory"
+            app:layout_constraintStart_toEndOf="@id/tvProgramCategory" />
+
+        <!-- Edit Button -->
+        <ImageButton
+            android:id="@+id/btnEditProgram"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_edit"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Edit"
+            app:tint="@color/accent_blue"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey_text"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/tvProgramCategory" />
+
+        <!-- Statistics Section -->
+        <LinearLayout
+            android:id="@+id/statsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:weightSum="3"
+            app:layout_constraintTop_toBottomOf="@id/divider1">
+
+            <!-- Active Users -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvActiveUsers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="45"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_green" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="👥 กำลังใช้"
+                    android:textSize="11sp"
+                    android:textColor="@color/grey_text"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <!-- Completed Users -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvCompletedUsers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="32"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_blue" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✅ จบแล้ว"
+                    android:textSize="11sp"
+                    android:textColor="@color/grey_text"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <!-- Completion Rate -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvCompletionRate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="71%"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_orange" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📊 อัตราสำเร็จ"
+                    android:textSize="11sp"
+                    android:textColor="@color/grey_text"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Divider 2 -->
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey_text"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/statsLayout" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:id="@+id/actionButtonsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/divider2">
+
+            <!-- View Button -->
+            <ImageButton
+                android:id="@+id/btnViewProgram"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_eye"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="View"
+                app:tint="@color/purple" />
+
+            <!-- Stats Button -->
+            <ImageButton
+                android:id="@+id/btnProgramStats"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_chart"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Stats"
+                app:tint="@color/accent_blue" />
+
+            <!-- Copy Button -->
+            <ImageButton
+                android:id="@+id/btnCopyProgram"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_copy"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Copy"
+                app:tint="@color/accent_orange" />
+
+            <!-- Delete Button -->
+            <ImageButton
+                android:id="@+id/btnDeleteProgram"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_delete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete"
+                app:tint="@color/accent_red" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
