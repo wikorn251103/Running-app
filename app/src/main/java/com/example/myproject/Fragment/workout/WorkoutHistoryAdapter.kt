@@ -43,7 +43,6 @@ class WorkoutHistoryAdapter(
         private val tvDistance: TextView = itemView.findViewById(R.id.tvDistance)
         private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
         private val tvPace: TextView = itemView.findViewById(R.id.tvPace)
-        private val tvCalories: TextView = itemView.findViewById(R.id.tvCalories)
         private val tvFeeling: TextView = itemView.findViewById(R.id.tvFeeling)
 
         private val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale("th", "TH"))
@@ -58,13 +57,6 @@ class WorkoutHistoryAdapter(
             tvDistance.text = String.format("%.2f กม.", workoutLog.actualDistance)
             tvDuration.text = workoutLog.getFormattedDuration()
             tvPace.text = "${workoutLog.calculateAveragePace()}/กม."
-
-            if (workoutLog.calories > 0) {
-                tvCalories.text = "${workoutLog.calories} kcal"
-                tvCalories.visibility = View.VISIBLE
-            } else {
-                tvCalories.visibility = View.GONE
-            }
 
             if (workoutLog.feeling.isNotEmpty()) {
                 tvFeeling.text = getFeelingEmoji(workoutLog.feeling)
