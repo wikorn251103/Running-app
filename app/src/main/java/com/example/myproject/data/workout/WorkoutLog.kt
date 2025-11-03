@@ -14,9 +14,9 @@ data class WorkoutLog(
     val plannedPace: String = "",
 
     // ผลการซ้อม
-    val actualDistance: Double = 0.0, // กม.
-    val actualDuration: Long = 0, // วินาที
-    val actualPace: String = "", // นาที:วินาที/กม.
+    val actualDistance: Double = 0.0,
+    val actualDuration: Long = 0,
+    val actualPace: String = "",
     val calories: Int = 0,
     val averageHeartRate: Int = 0,
 
@@ -27,13 +27,12 @@ data class WorkoutLog(
 
     // หมายเหตุ
     val notes: String = "",
-    val feeling: String = "", // "Great", "Good", "Okay", "Tired", "Struggling"
+    val feeling: String = "",
     val weatherCondition: String = "",
 
     // สถานะ
     val isCompleted: Boolean = true
 ) {
-    // คำนวณ Pace เฉลี่ย
     fun calculateAveragePace(): String {
         if (actualDistance <= 0 || actualDuration <= 0) return "0:00"
 
@@ -44,7 +43,6 @@ data class WorkoutLog(
         return String.format("%d:%02d", minutes, seconds)
     }
 
-    // แปลงเวลาเป็นรูปแบบที่อ่านง่าย
     fun getFormattedDuration(): String {
         val hours = actualDuration / 3600
         val minutes = (actualDuration % 3600) / 60

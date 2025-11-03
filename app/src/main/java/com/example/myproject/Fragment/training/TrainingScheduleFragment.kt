@@ -2,7 +2,9 @@ package com.example.myproject.Fragment.training
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,9 +15,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myproject.Fragment.home.HomeFragment
-import com.example.myproject.Fragment.target.TargetDistanceFragment
 import com.example.myproject.Fragment.workout.RecordWorkoutFragment
 import com.example.myproject.MainActivity
+import com.example.myproject.ProgramSelectionActivity
 import com.example.myproject.R
 import com.example.myproject.data.training.TrainingModel
 import com.example.myproject.data.training.TrainingRepository
@@ -39,12 +41,19 @@ class TrainingScheduleFragment : Fragment() {
     }
 
     companion object {
+        private const val TAG = "TrainingScheduleFragment"
+        private const val ARG_INITIAL_WEEK = "initial_week"
         private const val ARG_TRAINING_PLAN_ID = "training_plan_id"
 
-        fun newInstance(trainingPlanId: String? = null): TrainingScheduleFragment {
+        /**
+         * ⭐ เปลี่ยนจาก String? เป็น Int สำหรับ initialWeek
+         */
+        fun newInstance(initialWeek: Int = 1, trainingPlanId: String? = null): TrainingScheduleFragment {
             val fragment = TrainingScheduleFragment()
-            val bundle = Bundle()
-            trainingPlanId?.let { bundle.putString(ARG_TRAINING_PLAN_ID, it) }
+            val bundle = Bundle().apply {
+                putInt(ARG_INITIAL_WEEK, initialWeek)
+                trainingPlanId?.let { putString(ARG_TRAINING_PLAN_ID, it) }
+            }
             fragment.arguments = bundle
             return fragment
         }
@@ -74,7 +83,6 @@ class TrainingScheduleFragment : Fragment() {
         }
         viewModel = ViewModelProvider(this, factory)[TrainingScheduleViewModel::class.java]
 
-        // ⭐ Setup Adapter with callback
         trainingAdapter = TrainingScheduleAdapter { trainingData, weekNumber, dayNumber ->
             openRecordWorkoutFragment(trainingData, weekNumber, dayNumber)
         }
@@ -92,6 +100,11 @@ class TrainingScheduleFragment : Fragment() {
 
         if (viewModel.selectedTrainingPlanId != null) {
             showTrainingSchedule()
+
+            // ⭐ รับสัปดาห์ที่ส่งมาและเปิดที่สัปดาห์นั้น
+            val initialWeek = arguments?.getInt(ARG_INITIAL_WEEK, 1) ?: 1
+            Log.d(TAG, "📍 Opening with initial week: $initialWeek")
+            selectWeek(initialWeek)
         } else {
             showInitialState()
         }
@@ -106,8 +119,13 @@ class TrainingScheduleFragment : Fragment() {
             Toast.makeText(requireContext(), "กรุณาเลือกโปรแกรมก่อน", Toast.LENGTH_SHORT).show()
             (activity as? MainActivity)?.replaceFragment(HomeFragment.newInstance())
         } else {
-            // รีโหลดข้อมูลเพื่ออัพเดทติ๊กถูก
-            viewModel.currentWeek?.let { week ->
+            // ⭐ เช็คขาดซ้อมทุกสัปดาห์ (1-4) เพื่อให้แน่ใจว่าไม่พลาด
+            for (week in 1..4) {
+                viewModel.checkMissedDays(week)
+            }
+
+            // โหลดข้อมูลสัปดาห์ปัจจุบัน
+            viewModel.currentWeek.value?.let { week ->
                 viewModel.loadTrainingWeekRealtime(week)
             }
         }
@@ -115,7 +133,8 @@ class TrainingScheduleFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.btnStart.setOnClickListener {
-            (activity as? MainActivity)?.replaceFragment(TargetDistanceFragment.newInstance())
+            val intent = Intent(requireContext(), ProgramSelectionActivity::class.java)
+            startActivity(intent)
         }
 
         binding.btnWeek1.setOnClickListener { selectWeek(1) }
@@ -139,9 +158,6 @@ class TrainingScheduleFragment : Fragment() {
             .show()
     }
 
-    /**
-     * ⭐ รีเซ็ตโปรแกรมทั้งหมดจาก Firebase
-     */
     private fun resetProgramCompletelyFromFirebase() {
         val userId = auth.currentUser?.uid
         if (userId == null) {
@@ -151,7 +167,6 @@ class TrainingScheduleFragment : Fragment() {
 
         binding.progressBar.visibility = View.VISIBLE
 
-        // ลบ document Athletes/{userId}
         firestore.collection("Athletes")
             .document(userId)
             .delete()
@@ -162,7 +177,6 @@ class TrainingScheduleFragment : Fragment() {
                 (activity as? MainActivity)?.replaceFragment(HomeFragment.newInstance())
             }
             .addOnFailureListener { e ->
-                // ถ้าลบไม่ได้ ลอง update
                 firestore.collection("Athletes")
                     .document(userId)
                     .update(
@@ -201,18 +215,30 @@ class TrainingScheduleFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        // ⭐ Observe training days
         viewModel.trainingDays.observe(viewLifecycleOwner) { days ->
-            trainingAdapter.updateTrainingDays(days, viewModel.currentWeek ?: 1)
+            trainingAdapter.updateTrainingDays(days, viewModel.currentWeek.value ?: 1)
+            Log.d(TAG, "✅ Loaded ${days.size} training days")
         }
 
+        // ⭐ Observe loading state
         viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
+        // ⭐ Observe error
         viewModel.error.observe(viewLifecycleOwner) { errorMsg ->
             errorMsg?.let {
                 Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                viewModel.clearError()
             }
+        }
+
+        // ⭐ Observe current week
+        viewModel.currentWeek.observe(viewLifecycleOwner) { week ->
+            Log.d(TAG, "📍 Current week changed to: $week")
+            binding.tvHeaderSubtitle.text = "สัปดาห์ที่ $week"
+            highlightSelectedWeek(week)
         }
     }
 
@@ -230,16 +256,19 @@ class TrainingScheduleFragment : Fragment() {
         binding.recyclerViewTraining.visibility = View.VISIBLE
         binding.tvHeaderSubtitle.visibility = View.VISIBLE
         binding.btnExitPlan.visibility = View.VISIBLE
-
-        selectWeek(1)
     }
 
+    /**
+     * ⭐ เลือกสัปดาห์และโหลดข้อมูล
+     */
     private fun selectWeek(week: Int) {
-        viewModel.currentWeek = week
+        Log.d(TAG, "📅 Selecting week: $week")
+
         binding.tvHeaderSubtitle.text = "สัปดาห์ที่ $week"
         resetWeekButtons()
         highlightSelectedWeek(week)
 
+        // โหลดข้อมูลสัปดาห์นั้น
         viewModel.loadTrainingWeekRealtime(week)
     }
 
@@ -248,6 +277,7 @@ class TrainingScheduleFragment : Fragment() {
         buttons.forEach { button ->
             button.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
             button.setTextColor(resources.getColor(R.color.purple, null))
+            button.alpha = 0.5f
         }
     }
 
@@ -261,15 +291,15 @@ class TrainingScheduleFragment : Fragment() {
         }
         selectedButton.setBackgroundColor(resources.getColor(R.color.purple, null))
         selectedButton.setTextColor(resources.getColor(R.color.white, null))
+        selectedButton.alpha = 1.0f
+
+        Log.d(TAG, "✅ Week button $week highlighted")
     }
 
     private fun getSavedSelectedPlan(): String? {
         return sharedPreferences.getString("selected_program_name", null)
     }
 
-    /**
-     * ⭐ เปิดหน้าบันทึกการซ้อม
-     */
     private fun openRecordWorkoutFragment(
         trainingData: TrainingModel,
         weekNumber: Int,
@@ -286,5 +316,6 @@ class TrainingScheduleFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        Log.d(TAG, "onDestroyView - cleaning up")
     }
 }

@@ -46,6 +46,7 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
             .commit()
     }
     companion object {
+        const val TAG = "MainFragment"
         fun newInstance() = MainFragment()
     }
 }

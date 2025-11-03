@@ -80,6 +80,10 @@ class WorkoutHistoryFragment : Fragment() {
             viewModel.loadWorkoutHistoryLastMonth()
             highlightFilterButton(FilterType.MONTH)
         }
+
+        binding.btnBack.setOnClickListener {
+            requireActivity().supportFragmentManager.popBackStack()
+        }
     }
 
     private fun highlightFilterButton(filterType: FilterType) {

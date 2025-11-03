@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myproject.Fragment.workout.WorkoutHistoryFragment
 import com.example.myproject.Fragment.drill.ListDrillFragment
 import com.example.myproject.Fragment.target.TargetDistanceFragment
+import com.example.myproject.Fragment.training.TrainingScheduleFragment
 import com.example.myproject.MainActivity
 import com.example.myproject.R
 import com.example.myproject.databinding.FragmentHomeBinding
@@ -83,8 +84,42 @@ class HomeFragment : Fragment() {
             showExitProgramDialog()
         }
 
+        // ⭐ แก้ไขส่วนนี้ - เปิดไปที่สัปดาห์ปัจจุบัน
         binding.subProgramCard.setOnClickListener {
-            Toast.makeText(requireContext(), "ไปหน้าโปรแกรมย่อย", Toast.LENGTH_SHORT).show()
+            val userId = auth.currentUser?.uid
+            if (userId == null) {
+                Toast.makeText(requireContext(), "กรุณาเข้าสู่ระบบ", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // แสดง loading
+            binding.progressBar?.visibility = View.VISIBLE
+
+            // ดึงข้อมูลวันเริ่มโปรแกรม
+            firestore.collection("Athletes")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    binding.progressBar?.visibility = View.GONE
+
+                    if (document.exists()) {
+                        val startDate = document.getTimestamp("startDate")
+                        val currentWeek = calculateCurrentWeek(startDate?.toDate()?.time ?: 0L)
+
+                        Log.d(TAG, "📅 Opening training schedule at week: $currentWeek")
+
+                        // เปิด TrainingScheduleFragment พร้อมส่งสัปดาห์ปัจจุบัน
+                        val fragment = TrainingScheduleFragment.newInstance(currentWeek)
+                        (activity as? MainActivity)?.replaceFragment(fragment)
+                    } else {
+                        Toast.makeText(requireContext(), "ไม่พบข้อมูลโปรแกรม", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    binding.progressBar?.visibility = View.GONE
+                    Log.e(TAG, "❌ Error loading program data", e)
+                    Toast.makeText(requireContext(), "เกิดข้อผิดพลาด", Toast.LENGTH_SHORT).show()
+                }
         }
 
         binding.startDrill.setOnClickListener {
@@ -95,9 +130,44 @@ class HomeFragment : Fragment() {
         }
 
         binding.trackProgress.setOnClickListener {
-            //Toast.makeText(requireContext(), "ไปหน้าติดตามความก้าวหน้า", Toast.LENGTH_SHORT).show()
             (activity as? MainActivity)?.replaceFragment(WorkoutHistoryFragment.newInstance())
         }
+    }
+
+    /**
+     * ⭐ คำนวณสัปดาห์ปัจจุบันจากวันที่เริ่มโปรแกรม
+     */
+    private fun calculateCurrentWeek(startDateMillis: Long): Int {
+        if (startDateMillis == 0L) {
+            Log.w(TAG, "⚠️ No start date found, defaulting to week 1")
+            return 1
+        }
+
+        val startCalendar = Calendar.getInstance().apply {
+            timeInMillis = startDateMillis
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val daysDiff = ((today.timeInMillis - startCalendar.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
+        val currentWeek = (daysDiff / 7) + 1
+
+        Log.d(TAG, "📊 Start date: ${startCalendar.time}")
+        Log.d(TAG, "📊 Today: ${today.time}")
+        Log.d(TAG, "📊 Days since start: $daysDiff")
+        Log.d(TAG, "📊 Current week: $currentWeek")
+
+        // ตรวจสอบไม่ให้น้อยกว่า 1 และไม่เกินจำนวนสัปดาห์สูงสุด (เช่น 12 สัปดาห์)
+        return currentWeek.coerceIn(1, 12)
     }
 
     private fun syncProgramFromFirebase() {

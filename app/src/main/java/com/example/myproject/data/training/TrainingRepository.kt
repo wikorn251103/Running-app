@@ -4,7 +4,6 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import kotlinx.coroutines.tasks.await
 
 class TrainingRepository(private val firestore: FirebaseFirestore) {
 
@@ -31,7 +30,6 @@ class TrainingRepository(private val firestore: FirebaseFirestore) {
 
         Log.d(TAG, "🔄 Setting up real-time listener for week $week")
 
-        // ✅ ใช้ addSnapshotListener แทน get()
         weekListener = firestore.collection("Athletes")
             .document(userId)
             .addSnapshotListener { snapshot, error ->
@@ -59,7 +57,8 @@ class TrainingRepository(private val firestore: FirebaseFirestore) {
                                 description = it["description"] as? String ?: "",
                                 pace = it["pace"] as? String ?: "",
                                 type = it["type"] as? String ?: "",
-                                isCompleted = it["isCompleted"] as? Boolean ?: false // ✅ เพิ่ม
+                                isCompleted = it["isCompleted"] as? Boolean ?: false,
+                                isMissed = it["isMissed"] as? Boolean ?: false // ✅ เพิ่มนี้
                             )
                             trainingDays.add(trainingDay)
                         }
@@ -121,7 +120,8 @@ class TrainingRepository(private val firestore: FirebaseFirestore) {
                                 description = it["description"] as? String ?: "",
                                 pace = it["pace"] as? String ?: "",
                                 type = it["type"] as? String ?: "",
-                                isCompleted = it["isCompleted"] as? Boolean ?: false
+                                isCompleted = it["isCompleted"] as? Boolean ?: false,
+                                isMissed = it["isMissed"] as? Boolean ?: false // ✅ เพิ่มนี้
                             )
                             trainingDays.add(trainingDay)
                         }

@@ -5,6 +5,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class WorkoutRepository {
 
@@ -36,7 +38,6 @@ class WorkoutRepository {
                 userId = userId
             )
 
-            // บันทึกใน workoutHistory
             firestore.collection(COLLECTION_WORKOUT_HISTORY)
                 .document(userId)
                 .collection("logs")
@@ -54,25 +55,56 @@ class WorkoutRepository {
     }
 
     /**
-     * อัพเดทสถานะว่าทำแล้ว ใน Athletes/{userId}
+     * ⭐ อัปเดท isCompleted = true ใน Athletes/{userId}/week_X/day_Y
      */
     suspend fun markDayAsCompleted(weekNumber: Int, dayNumber: Int): Result<Boolean> {
-        return try {
-            val userId = auth.currentUser?.uid ?: return Result.failure(Exception("User not logged in"))
+        return suspendCoroutine { continuation ->
+            val userId = auth.currentUser?.uid
+            if (userId == null) {
+                continuation.resume(Result.failure(Exception("User not logged in")))
+                return@suspendCoroutine
+            }
 
-            val fieldPath = "weeks.week$weekNumber.day$dayNumber.isCompleted"
+            val fieldPath = "week_$weekNumber.day_$dayNumber.isCompleted"
 
             firestore.collection(COLLECTION_ATHLETES)
                 .document(userId)
                 .update(fieldPath, true)
-                .await()
+                .addOnSuccessListener {
+                    Log.d(TAG, "✅ Day marked as completed: Week $weekNumber, Day $dayNumber")
+                    continuation.resume(Result.success(true))
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "❌ Error marking day as completed", e)
+                    continuation.resume(Result.failure(e))
+                }
+        }
+    }
 
-            Log.d(TAG, "✅ Day marked as completed: Week $weekNumber, Day $dayNumber")
-            Result.success(true)
+    /**
+     * ⭐ อัปเดท isMissed = true สำหรับวันที่ขาดซ้อม
+     */
+    suspend fun markDayAsMissed(weekNumber: Int, dayNumber: Int): Result<Boolean> {
+        return suspendCoroutine { continuation ->
+            val userId = auth.currentUser?.uid
+            if (userId == null) {
+                continuation.resume(Result.failure(Exception("User not logged in")))
+                return@suspendCoroutine
+            }
 
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Error marking day as completed", e)
-            Result.failure(e)
+            val fieldPath = "week_$weekNumber.day_$dayNumber.isMissed"
+
+            firestore.collection(COLLECTION_ATHLETES)
+                .document(userId)
+                .update(fieldPath, true)
+                .addOnSuccessListener {
+                    Log.d(TAG, "✅ Day marked as missed: Week $weekNumber, Day $dayNumber")
+                    continuation.resume(Result.success(true))
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "❌ Error marking day as missed", e)
+                    continuation.resume(Result.failure(e))
+                }
         }
     }
 

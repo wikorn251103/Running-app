@@ -53,16 +53,17 @@ class RecordWorkoutViewModel : ViewModel() {
                 val userId = auth.currentUser?.uid
                 if (userId == null) {
                     _error.postValue("ไม่พบข้อมูลผู้ใช้")
+                    _isSaving.postValue(false)
                     return@launch
                 }
 
                 // สร้าง WorkoutLog
                 val workoutLog = WorkoutLog(
                     userId = userId,
-                    programId = "", // จะดึงจาก SharedPreferences หรือส่งมาเป็น parameter
+                    programId = "",
                     weekNumber = weekNumber,
                     dayNumber = dayNumber,
-                    dayName = trainingData.day ?: "",
+                    dayName = trainingData.day,
                     trainingType = trainingData.type,
                     plannedDescription = trainingData.description,
                     plannedPace = trainingData.pace,
@@ -77,20 +78,20 @@ class RecordWorkoutViewModel : ViewModel() {
                     isCompleted = true
                 )
 
-                // บันทึก WorkoutLog
+                // ⭐ บันทึก WorkoutLog
                 val saveResult = repository.saveWorkoutLog(workoutLog)
 
                 if (saveResult.isSuccess) {
                     Log.d(TAG, "✅ Workout log saved successfully")
 
-                    // อัพเดทสถานะใน Athletes
+                    // ⭐ อัปเดท isCompleted = true ใน Athletes
                     val markResult = repository.markDayAsCompleted(weekNumber, dayNumber)
 
                     if (markResult.isSuccess) {
                         Log.d(TAG, "✅ Day marked as completed in Athletes")
                         _saveSuccess.postValue(true)
                     } else {
-                        Log.w(TAG, "⚠️ Failed to mark day as completed, but workout saved")
+                        Log.w(TAG, "⚠️ Failed to mark day, but workout saved")
                         _saveSuccess.postValue(true)
                     }
                 } else {

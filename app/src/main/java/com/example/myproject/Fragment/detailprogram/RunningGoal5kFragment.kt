@@ -9,8 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.example.myproject.Fragment.training.TrainingScheduleFragment
 import com.example.myproject.MainActivity
+import com.example.myproject.MainFragment
 import com.example.myproject.R
 import com.example.myproject.databinding.FragmentRunningGoal5kBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -261,8 +263,12 @@ class RunningGoal5kFragment : Fragment() {
 
                 Toast.makeText(requireContext(), "เริ่มโปรแกรมสำเร็จ", Toast.LENGTH_SHORT).show()
 
-                val fragment = TrainingScheduleFragment.newInstance(programId)
-                (activity as? MainActivity)?.replaceFragment(fragment)
+//                val fragment = TrainingScheduleFragment.newInstance(programId)
+//                (activity as? MainActivity)?.replaceFragment(fragment)
+
+                activity?.supportFragmentManager?.popBackStack()
+                activity?.supportFragmentManager?.popBackStack()
+
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "❌ Failed to save to Athletes collection", e)

@@ -11,7 +11,7 @@ import com.example.myproject.R
 import com.example.myproject.data.training.TrainingModel
 
 class TrainingScheduleAdapter(
-    private val onStartWorkout: (TrainingModel, Int, Int) -> Unit // callback เมื่อกดเริ่มบันทึก
+    private val onStartWorkout: (TrainingModel, Int, Int) -> Unit
 ) : RecyclerView.Adapter<TrainingScheduleAdapter.TrainingViewHolder>() {
 
     private var trainingDays = mutableListOf<TrainingModel>()
@@ -65,13 +65,16 @@ class TrainingScheduleAdapter(
             tvDescription.text = trainingDay.description
             tvType.text = trainingDay.type
 
-            // ⭐ แสดงสถานะ 3 แบบ
+            // ⭐ ตรวจสอบสถานะ 4 แบบ
             when {
                 trainingDay.isCompleted -> {
                     // ✅ ทำแล้ว
                     itemView.alpha = 0.6f
                     tvDay.text = "✅"
                     btnStartWorkout.visibility = View.GONE
+                    itemView.setBackgroundColor(
+                        ContextCompat.getColor(itemView.context, android.R.color.transparent)
+                    )
                 }
                 trainingDay.isMissed -> {
                     // ❌ ขาดซ้อม
@@ -82,10 +85,23 @@ class TrainingScheduleAdapter(
                         ContextCompat.getColor(itemView.context, R.color.light_red)
                     )
                 }
+                trainingDay.type.equals("Rest Day", ignoreCase = true) -> {
+                    // 😴 วันพัก - ไม่มีปุ่มบันทึก
+                    itemView.alpha = 1.0f
+                    tvDay.text = dayNumber.toString()
+                    btnStartWorkout.visibility = View.GONE
+                    itemView.setBackgroundColor(
+                        ContextCompat.getColor(itemView.context, android.R.color.transparent)
+                    )
+                }
                 else -> {
                     // ⏳ รอทำ
                     itemView.alpha = 1.0f
+                    tvDay.text = dayNumber.toString()
                     btnStartWorkout.visibility = View.VISIBLE
+                    itemView.setBackgroundColor(
+                        ContextCompat.getColor(itemView.context, android.R.color.transparent)
+                    )
                 }
             }
 

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:background="#F5F5F5"
     tools:context=".Fragment.home.HomeFragment">
 
     <!-- Root LinearLayout -->
@@ -20,47 +21,50 @@
             android:layout_height="wrap_content"
             android:background="@color/purple"
             android:orientation="vertical"
-            android:paddingTop="30dp"
-            android:paddingBottom="24dp">
+            android:paddingTop="40dp"
+            android:paddingBottom="32dp"
+            android:elevation="4dp">
 
             <!-- ไอคอนแอป -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+            <androidx.cardview.widget.CardView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@drawable/greypur_bg">
+                app:cardCornerRadius="50dp"
+                app:cardElevation="8dp"
+                android:backgroundTint="@color/white">
 
                 <ImageView
                     android:id="@+id/imageView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
                     android:contentDescription="@string/app_icon"
                     android:src="@drawable/ic_shoe"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    app:tint="@color/purple" />
+            </androidx.cardview.widget.CardView>
 
             <!-- ชื่อแอป -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="6dp"
-                android:text="Recommended running practice"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:text="Recommended Running"
                 android:textAlignment="center"
                 android:textColor="@color/white"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.02" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="แอปพลิเคชันสำหรับคุณ"
-                android:textColor="#CDABFA"
-                android:textSize="16sp" />
+                android:textColor="#E1BEE7"
+                android:textSize="16sp"
+                android:alpha="0.9" />
         </LinearLayout>
 
         <!-- ================= เลือกตารางซ้อม ================= -->
@@ -68,7 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="28dp"
             android:layout_marginEnd="24dp"
             android:orientation="vertical">
 
@@ -76,14 +80,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
 
-                <ImageView
-                    android:id="@+id/imageView5"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_article"
-                    app:tint="@color/purple" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    android:backgroundTint="#E8EAF6">
+
+                    <ImageView
+                        android:id="@+id/imageView5"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_article"
+                        app:tint="@color/purple" />
+                </androidx.cardview.widget.CardView>
 
                 <TextView
                     android:id="@+id/textView4"
@@ -93,18 +107,19 @@
                     android:paddingStart="16dp"
                     android:text="เลือกตารางซ้อมวิ่งของคุณ"
                     android:textColor="@color/black"
-                    android:textSize="22sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
+                android:layout_marginStart="56dp"
                 android:layout_marginTop="4dp"
                 android:text="เริ่มต้นการเดินทางสู่การวิ่งที่ดีกว่าด้วยโปรแกรมที่เหมาะสมกับคุณ"
                 android:textColor="@color/grey_text"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:lineSpacingExtra="4dp" />
         </LinearLayout>
 
         <!-- ================= STATE 1 : ยังไม่เลือกตารางซ้อม ================= -->
@@ -112,44 +127,43 @@
             android:id="@+id/notSelectedStateCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="24dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="20dp"
             android:visibility="visible"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/txt_bg"
-                android:padding="16dp">
+                android:orientation="vertical">
 
-                <!-- Header -->
+                <!-- Header with Gradient -->
                 <LinearLayout
                     android:id="@+id/headerLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/gradient_header_bg"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:padding="20dp">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:background="@drawable/logo_icon">
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        app:cardCornerRadius="30dp"
+                        app:cardElevation="0dp"
+                        android:backgroundTint="@color/white">
 
                         <ImageView
                             android:id="@+id/imageView6"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="center"
                             android:src="@drawable/ic_bolt"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/white" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                            app:tint="@color/purple" />
+                    </androidx.cardview.widget.CardView>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -164,60 +178,82 @@
                             android:layout_height="wrap_content"
                             android:text="เริ่มต้นการซ้อม"
                             android:textColor="@color/white"
-                            android:textSize="20sp"
+                            android:textSize="22sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
+                            android:layout_marginTop="4dp"
                             android:text="เลือกโปรแกรมที่เหมาะสมกับคุณ"
-                            android:textColor="@color/light_purple"
-                            android:textSize="16sp" />
+                            android:textColor="#E1BEE7"
+                            android:textSize="15sp" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Description -->
-                <TextView
-                    android:id="@+id/textView6"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="พร้อมเริ่มการวิ่งแล้วหรือยัง? เลือกโปรแกรมการซ้อมที่เหมาะสมกับระดับความสามารถของคุณ"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/headerLayout" />
-
-                <!-- Footer -->
+                <!-- Content -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textView6">
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@color/white">
 
+                    <!-- Description -->
                     <TextView
-                        android:id="@+id/textView5"
-                        android:layout_width="0dp"
+                        android:id="@+id/textView6"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="3 โปรแกรมให้เลือก"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
+                        android:text="พร้อมเริ่มการวิ่งแล้วหรือยัง? เลือกโปรแกรมการซ้อมที่เหมาะสมกับระดับความสามารถของคุณ"
+                        android:textColor="#424242"
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="4dp" />
 
-                    <ImageView
-                        android:id="@+id/nextBtn"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/baseline_arrow_forward_ios_24"
-                        app:tint="@color/white" />
+                    <!-- Footer -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:background="@drawable/ripple_purple_light"
+                        android:padding="16dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/textView5"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3 โปรแกรมให้เลือก"
+                                android:textColor="@color/purple"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="แตะเพื่อดูรายละเอียด"
+                                android:textColor="@color/grey_text"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/nextBtn"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/baseline_arrow_forward_ios_24"
+                            app:tint="@color/purple" />
+                    </LinearLayout>
                 </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <!-- ================= STATE 2 : เลือกตารางซ้อมแล้ว ================= -->
@@ -227,7 +263,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
-            android:layout_marginBottom="24dp"
             android:orientation="vertical"
             android:visibility="gone">
 
@@ -236,54 +271,98 @@
                 android:id="@+id/mainProgramCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/txt_bg"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:orientation="vertical">
 
-                    <!-- ชื่อโปรแกรม - เพิ่ม ID -->
-                    <TextView
-                        android:id="@+id/mainProgramTitle"
+                    <!-- Header with Gradient -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="5km-sub25"
-                        android:textAlignment="center"
-                        android:textColor="@color/white"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
-
-                    <!-- ปุ่มออกจากตารางซ้อม -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/exitProgramButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        app:cardBackgroundColor="@color/white"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp">
+                        android:background="@drawable/gradient_header_bg"
+                        android:orientation="vertical"
+                        android:padding="24dp"
+                        android:gravity="center">
 
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="โปรแกรมปัจจุบัน"
+                            android:textColor="#E1BEE7"
+                            android:textSize="14sp"
+                            android:letterSpacing="0.1" />
+
+                        <!-- ชื่อโปรแกรม -->
+                        <TextView
+                            android:id="@+id/mainProgramTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="5km-sub25"
+                            android:textColor="@color/white"
+                            android:textSize="32sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.05" />
+
+                        <View
+                            android:layout_width="60dp"
+                            android:layout_height="3dp"
+                            android:layout_marginTop="12dp"
+                            android:background="@color/white"
+                            android:alpha="0.5" />
+                    </LinearLayout>
+
+                    <!-- Exit Button -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp"
+                        android:background="@color/white">
+
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/exitProgramButton"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="12dp"
-                            android:text="ออกจากตารางซ้อม"
-                            android:textAlignment="center"
-                            android:textColor="#E53935"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-                    </androidx.cardview.widget.CardView>
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            app:cardBackgroundColor="#FFEBEE"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center"
+                                android:padding="14dp">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:src="@drawable/ic_bolt"
+                                    app:tint="#D32F2F" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:text="ออกจากตารางซ้อม"
+                                    android:textColor="#D32F2F"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -292,53 +371,136 @@
                 android:id="@+id/subProgramCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="6dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="vertical">
 
+                    <!-- Header Section with Gradient Background -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:background="@drawable/gradient_header_bg"
+                        android:padding="20dp">
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:contentDescription="Program icon"
-                            android:src="@drawable/ic_article"
-                            app:tint="@color/purple" />
-
-                        <!-- เพิ่ม ID สำหรับชื่อโปรแกรมย่อย -->
-                        <TextView
-                            android:id="@+id/subProgramTitle"
-                            android:layout_width="0dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:text="โปรแกรมย่อยอื่นๆ"
-                            android:textColor="@color/black"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <!-- Icon Container with Circle Background -->
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="52dp"
+                                android:layout_height="52dp"
+                                app:cardCornerRadius="26dp"
+                                app:cardElevation="0dp"
+                                android:backgroundTint="@color/white">
+
+                                <ImageView
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="Program icon"
+                                    android:src="@drawable/ic_article"
+                                    app:tint="@color/purple" />
+
+                            </androidx.cardview.widget.CardView>
+
+                            <!-- Title with subtitle -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="16dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="ตารางการฝึกซ้อม"
+                                    android:textColor="#E1BEE7"
+                                    android:textSize="13sp"
+                                    android:letterSpacing="0.05" />
+
+                                <TextView
+                                    android:id="@+id/subProgramTitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="โปรแกรมย่อยอื่นๆ"
+                                    android:textColor="@color/white"
+                                    android:textSize="22sp"
+                                    android:textStyle="bold"
+                                    android:maxLines="2"
+                                    android:ellipsize="end"/>
+
+                            </LinearLayout>
+
+                            <!-- Arrow Icon -->
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:src="@drawable/baseline_arrow_forward_ios_24"
+                                app:tint="@color/white"
+                                android:contentDescription="Arrow icon"/>
+
+                        </LinearLayout>
+
                     </LinearLayout>
 
-                    <!-- RecyclerView แสดงวัน/รายละเอียดการซ้อม -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recyclerTrainingDays"
+                    <!-- Training Days Section -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:nestedScrollingEnabled="false" />
+                        android:orientation="vertical"
+                        android:padding="20dp"
+                        android:background="@color/white">
+
+                        <!-- Section Label -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="16dp">
+
+                            <View
+                                android:layout_width="4dp"
+                                android:layout_height="24dp"
+                                android:background="@color/purple"
+                                android:layout_marginEnd="12dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="รายละเอียดการซ้อม"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+                        <!-- RecyclerView แสดงวัน/รายละเอียดการซ้อม -->
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerTrainingDays"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            android:clipToPadding="false"/>
+
+                    </LinearLayout>
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
             <!-- ProgressBar -->
@@ -347,8 +509,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="20dp"
-                android:visibility="gone" />
+                android:layout_marginTop="24dp"
+                android:visibility="gone"
+                android:indeterminateTint="@color/purple" />
         </LinearLayout>
 
         <!-- ================= ฟีเจอร์เสริม ================= -->
@@ -356,7 +519,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="32dp"
             android:layout_marginEnd="24dp"
             android:orientation="vertical">
 
@@ -364,14 +527,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
 
-                <ImageView
-                    android:id="@+id/imageView8"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/btn_star_big_on"
-                    app:tint="#FFD700" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    android:backgroundTint="#FFF9C4">
+
+                    <ImageView
+                        android:id="@+id/imageView8"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@android:drawable/btn_star_big_on"
+                        app:tint="#FFA000" />
+                </androidx.cardview.widget.CardView>
 
                 <TextView
                     android:id="@+id/textView8"
@@ -381,25 +554,28 @@
                     android:paddingStart="16dp"
                     android:text="ฟีเจอร์เสริม"
                     android:textColor="@color/black"
-                    android:textSize="22sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
+                android:layout_marginStart="56dp"
                 android:layout_marginTop="4dp"
                 android:text="เครื่องมือและความรู้เพิ่มเติมเพื่อการวิ่งที่ดีขึ้น"
                 android:textColor="@color/grey_text"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:lineSpacingExtra="4dp" />
         </LinearLayout>
 
         <!-- ================= Feature Cards ================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="20dp"
             android:baselineAligned="false"
             android:orientation="horizontal">
 
@@ -408,52 +584,54 @@
                 android:id="@+id/startDrill"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="12dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                app:cardCornerRadius="12dp"
+                app:cardCornerRadius="16dp"
                 app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp"
+                    android:background="@color/white">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="@drawable/feture_bg1">
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:cardCornerRadius="25dp"
+                        app:cardElevation="0dp"
+                        android:backgroundTint="#E3F2FD">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
                             android:src="@drawable/ic_walk"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/white" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                            app:tint="#1976D2" />
+                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:text="การดริลเพื่อท่าทางถูกต้อง"
                         android:textColor="@color/black"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:lineSpacingExtra="2dp" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="8dp"
                         android:text="ปรับปรุงท่าวิ่งให้มีประสิทธิภาพและลดการบาดเจ็บ"
                         android:textColor="@color/grey_text"
-                        android:textSize="16sp" />
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="3dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -462,52 +640,54 @@
                 android:id="@+id/trackProgress"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="12dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                app:cardCornerRadius="12dp"
+                app:cardCornerRadius="16dp"
                 app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp"
+                    android:background="@color/white">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="@drawable/txt_bg">
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        app:cardCornerRadius="25dp"
+                        app:cardElevation="0dp"
+                        android:backgroundTint="#F3E5F5">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
                             android:src="@drawable/ic_grap"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/white" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                            app:tint="@color/purple" />
+                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:text="ติดตามความก้าวหน้า"
                         android:textColor="@color/black"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:lineSpacingExtra="2dp" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="8dp"
                         android:text="สถิติและกราฟแสดงพัฒนาการของคุณ"
                         android:textColor="@color/grey_text"
-                        android:textSize="16sp" />
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="3dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
