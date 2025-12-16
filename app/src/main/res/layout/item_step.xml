@@ -10,7 +10,7 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:gravity="center"
-        android:background="@drawable/btn_bg"
+        android:background="@drawable/txt_bg"
         android:text="1"
         android:textColor="@android:color/white"
         android:textStyle="bold"/>

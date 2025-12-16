@@ -86,7 +86,7 @@ class MissedWorkoutCheckWorker(
 
         var missedCount = 0
 
-        // ⭐ เช็คทุกสัปดาห์ (1-4)
+        // เช็คทุกสัปดาห์ (1-4)
         for (week in 1..4) {
             val weekData = document.get("week_$week") as? HashMap<*, *>
             if (weekData == null) {
@@ -94,7 +94,7 @@ class MissedWorkoutCheckWorker(
                 continue
             }
 
-            // ⭐ เช็คทุกวัน (1-7)
+            // เช็คทุกวัน (1-7)
             for (day in 1..7) {
                 val dayData = weekData["day_$day"] as? HashMap<*, *>
                 if (dayData == null) {
@@ -112,7 +112,7 @@ class MissedWorkoutCheckWorker(
                     add(Calendar.DAY_OF_YEAR, ((week - 1) * 7) + (day - 1))
                 }
 
-                // ⭐ เงื่อนไข: วันที่ผ่านไปแล้ว + ไม่ได้ซ้อม + ยังไม่ถูก mark + ไม่ใช่ Rest Day
+                // เงื่อนไข: วันที่ผ่านไปแล้ว + ไม่ได้ซ้อม + ยังไม่ถูก mark + ไม่ใช่ Rest Day
                 if (dayDate.before(today) &&
                     !isCompleted &&
                     !isMissed &&

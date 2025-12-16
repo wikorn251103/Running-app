@@ -5,6 +5,8 @@ import android.os.Bundle
 import com.example.myproject.corre.BaseFragment
 import com.example.myproject.data.drill.drillModel
 import com.example.myproject.databinding.FragmentDrillDetailBinding
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 
 class DrillDetailFragment :
     BaseFragment<FragmentDrillDetailBinding>(FragmentDrillDetailBinding::inflate) {
@@ -19,28 +21,17 @@ class DrillDetailFragment :
     }
 
     override fun initViews() {
-        // ฝัง YouTube Video
+        // ตั้งค่า YouTube Player
         val videoId = extractYoutubeVideoId(drill.videoUrl)
-        val html = """
-            <html>
-                <body style="margin:0;">
-                    <iframe width="100%" height="100%"
-                        src="https://www.youtube.com/embed/$videoId"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen>
-                    </iframe>
-                </body>
-            </html>
-        """.trimIndent()
 
-        with(binding.webViewVideo) {
-            settings.javaScriptEnabled = true
-            settings.loadWithOverviewMode = true
-            settings.useWideViewPort = true
-            loadData(html, "text/html", "utf-8")
-        }
+        lifecycle.addObserver(binding.youtubePlayerView)
 
+        binding.youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+            override fun onReady(youTubePlayer: YouTubePlayer) {
+                // ใช้ cueVideo เพื่อไม่ให้เล่นอัตโนมัติ
+                youTubePlayer.cueVideo(videoId, 0f)
+            }
+        })
         // ตั้งค่าข้อมูลอื่น ๆ
         binding.tvTitle.text = drill.title
         binding.tvDescription.text = drill.description
@@ -53,6 +44,11 @@ class DrillDetailFragment :
         binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+    }
+
+    override fun onDestroyView() {
+        binding.youtubePlayerView.release()
+        super.onDestroyView()
     }
 
     companion object {

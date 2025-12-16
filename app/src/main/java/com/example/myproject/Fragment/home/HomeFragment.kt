@@ -63,6 +63,10 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume - reloading UI state")
+
+        // ✅ เช็คว่าโปรแกรมมือใหม่หมดอายุหรือยัง
+        checkBeginnerProgramExpiryOnHome()
+
         syncProgramFromFirebase()
     }
 
@@ -84,7 +88,7 @@ class HomeFragment : Fragment() {
             showExitProgramDialog()
         }
 
-        // ⭐ แก้ไขส่วนนี้ - เปิดไปที่สัปดาห์ปัจจุบัน
+        // เปิดไปที่สัปดาห์ปัจจุบัน
         binding.subProgramCard.setOnClickListener {
             val userId = auth.currentUser?.uid
             if (userId == null) {
@@ -92,31 +96,45 @@ class HomeFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // แสดง loading
-            binding.progressBar?.visibility = View.VISIBLE
+            // ✅ เช็คว่า binding ยังไม่เป็น null
+            _binding?.let { it.progressBar?.visibility = View.VISIBLE }
 
-            // ดึงข้อมูลวันเริ่มโปรแกรม
+            val isViewOnly = sharedPreferences.getBoolean("is_view_only_program", false)
+
             firestore.collection("Athletes")
                 .document(userId)
                 .get()
                 .addOnSuccessListener { document ->
-                    binding.progressBar?.visibility = View.GONE
+                    // ✅ เช็คว่า Fragment ยัง attached อยู่
+                    if (!isAdded || _binding == null) return@addOnSuccessListener
+
+                    _binding?.let { it.progressBar?.visibility = View.GONE }
 
                     if (document.exists()) {
-                        val startDate = document.getTimestamp("startDate")
-                        val currentWeek = calculateCurrentWeek(startDate?.toDate()?.time ?: 0L)
+                        val startDateMillis = try {
+                            document.getTimestamp("startDate")?.toDate()?.time
+                        } catch (e: Exception) {
+                            document.getLong("startDate")
+                        } ?: 0L
 
-                        Log.d(TAG, "📅 Opening training schedule at week: $currentWeek")
+                        val currentWeek = calculateCurrentWeek(startDateMillis)
 
-                        // เปิด TrainingScheduleFragment พร้อมส่งสัปดาห์ปัจจุบัน
-                        val fragment = TrainingScheduleFragment.newInstance(currentWeek)
+                        Log.d(TAG, "📅 Opening training schedule at week: $currentWeek (View Only: $isViewOnly)")
+
+                        val fragment = TrainingScheduleFragment.newInstance(
+                            initialWeek = currentWeek,
+                            isViewOnly = isViewOnly
+                        )
                         (activity as? MainActivity)?.replaceFragment(fragment)
                     } else {
-                        Toast.makeText(requireContext(), "ไม่พบข้อมูลโปรแกรม", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "ไม่พบข้อมูลโปรแกรม", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
                 .addOnFailureListener { e ->
-                    binding.progressBar?.visibility = View.GONE
+                    if (!isAdded || _binding == null) return@addOnFailureListener
+
+                    _binding?.let { it.progressBar?.visibility = View.GONE }
                     Log.e(TAG, "❌ Error loading program data", e)
                     Toast.makeText(requireContext(), "เกิดข้อผิดพลาด", Toast.LENGTH_SHORT).show()
                 }
@@ -134,9 +152,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    /**
-     * ⭐ คำนวณสัปดาห์ปัจจุบันจากวันที่เริ่มโปรแกรม
-     */
     private fun calculateCurrentWeek(startDateMillis: Long): Int {
         if (startDateMillis == 0L) {
             Log.w(TAG, "⚠️ No start date found, defaulting to week 1")
@@ -158,7 +173,8 @@ class HomeFragment : Fragment() {
             set(Calendar.MILLISECOND, 0)
         }
 
-        val daysDiff = ((today.timeInMillis - startCalendar.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
+        val daysDiff =
+            ((today.timeInMillis - startCalendar.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
         val currentWeek = (daysDiff / 7) + 1
 
         Log.d(TAG, "📊 Start date: ${startCalendar.time}")
@@ -166,8 +182,110 @@ class HomeFragment : Fragment() {
         Log.d(TAG, "📊 Days since start: $daysDiff")
         Log.d(TAG, "📊 Current week: $currentWeek")
 
-        // ตรวจสอบไม่ให้น้อยกว่า 1 และไม่เกินจำนวนสัปดาห์สูงสุด (เช่น 12 สัปดาห์)
         return currentWeek.coerceIn(1, 12)
+    }
+
+    private fun checkBeginnerProgramExpiryOnHome() {
+        val isViewOnly = sharedPreferences.getBoolean("is_view_only_program", false)
+
+        if (!isViewOnly) return
+
+        val startDate = sharedPreferences.getLong("program_start_date", 0L)
+        if (startDate == 0L) {
+            Log.w(TAG, "⚠️ No start date found for beginner program")
+            return
+        }
+
+        val startCalendar = Calendar.getInstance().apply {
+            timeInMillis = startDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val daysSinceStart = ((today.timeInMillis - startCalendar.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
+        val totalDays = 28
+
+        Log.d(TAG, "📊 Beginner Program Check - Days: $daysSinceStart / $totalDays")
+
+        if (daysSinceStart >= totalDays) {
+            Log.d(TAG, "🎉 Beginner program expired! Auto-exiting...")
+            showBeginnerCompletionDialogOnHome()
+        }
+    }
+
+    private fun showBeginnerCompletionDialogOnHome() {
+        // ✅ เช็คว่า Fragment ยัง attached อยู่
+        if (!isAdded) return
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("🎉 ยินดีด้วย!")
+            .setMessage("คุณซ้อมครบโปรแกรมมือใหม่ 4 สัปดาห์แล้ว!\n\nระบบจะออกจากโปรแกรมอัตโนมัติ คุณสามารถเลือกโปรแกรมใหม่ได้")
+            .setPositiveButton("ตกลง") { _, _ ->
+                autoExitBeginnerProgramOnHome()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun autoExitBeginnerProgramOnHome() {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            clearProgramSelection()
+            loadAndUpdateUIState()
+            return
+        }
+
+        _binding?.let { it.progressBar?.visibility = View.VISIBLE }
+
+        firestore.collection("Athletes")
+            .document(userId)
+            .delete()
+            .addOnSuccessListener {
+                if (!isAdded || _binding == null) return@addOnSuccessListener
+
+                clearProgramSelection()
+                _binding?.let { it.progressBar?.visibility = View.GONE }
+                Toast.makeText(requireContext(), "จบโปรแกรมมือใหม่สำเร็จ! เลือกโปรแกรมใหม่ได้เลย", Toast.LENGTH_LONG).show()
+                loadAndUpdateUIState()
+            }
+            .addOnFailureListener { e ->
+                if (!isAdded || _binding == null) return@addOnFailureListener
+
+                Log.e(TAG, "❌ Failed to delete program", e)
+                firestore.collection("Athletes")
+                    .document(userId)
+                    .update(
+                        mapOf(
+                            "isActive" to false,
+                            "completedAt" to System.currentTimeMillis()
+                        )
+                    )
+                    .addOnSuccessListener {
+                        if (!isAdded || _binding == null) return@addOnSuccessListener
+
+                        clearProgramSelection()
+                        _binding?.let { it.progressBar?.visibility = View.GONE }
+                        Toast.makeText(requireContext(), "จบโปรแกรมมือใหม่สำเร็จ!", Toast.LENGTH_SHORT).show()
+                        loadAndUpdateUIState()
+                    }
+                    .addOnFailureListener { updateError ->
+                        if (!isAdded || _binding == null) return@addOnFailureListener
+
+                        Log.e(TAG, "❌ Failed to update program", updateError)
+                        clearProgramSelection()
+                        _binding?.let { it.progressBar?.visibility = View.GONE }
+                        loadAndUpdateUIState()
+                    }
+            }
     }
 
     private fun syncProgramFromFirebase() {
@@ -178,13 +296,25 @@ class HomeFragment : Fragment() {
             return
         }
 
+        // ✅ เช็คว่า Fragment ยัง attached อยู่
+        if (!isAdded) {
+            Log.w(TAG, "⚠️ Fragment not attached, skipping sync")
+            return
+        }
+
         Log.d(TAG, "🔄 Syncing program from Firebase for userId: $userId")
-        binding.progressBar?.visibility = View.VISIBLE
+        _binding?.let { it.progressBar?.visibility = View.VISIBLE }
 
         firestore.collection("Athletes")
             .document(userId)
             .get()
             .addOnSuccessListener { document ->
+                // ✅ เช็คว่า Fragment ยัง attached อยู่
+                if (!isAdded || _binding == null) {
+                    Log.w(TAG, "⚠️ Fragment detached or binding null, ignoring result")
+                    return@addOnSuccessListener
+                }
+
                 Log.d(TAG, "✅ Athletes document fetched. Exists: ${document.exists()}")
 
                 if (document.exists()) {
@@ -192,8 +322,9 @@ class HomeFragment : Fragment() {
                     val programId = document.getString("programId") ?: ""
                     val programDisplayName = document.getString("programDisplayName") ?: ""
                     val subProgramName = document.getString("subProgramName") ?: "โปรแกรมย่อย 5K"
+                    val isViewOnly = document.getBoolean("isViewOnly") ?: false
 
-                    Log.d(TAG, "Program data - isActive: $isActive, programId: $programId")
+                    Log.d(TAG, "Program data - isActive: $isActive, programId: $programId, isViewOnly: $isViewOnly")
 
                     if (isActive && programId.isNotEmpty()) {
                         sharedPreferences.edit().apply {
@@ -201,9 +332,10 @@ class HomeFragment : Fragment() {
                             putString("selected_program_name", programId)
                             putString("selected_program_display_name", programDisplayName)
                             putString("selected_sub_program_name", subProgramName)
+                            putBoolean("is_view_only_program", isViewOnly)
                             apply()
                         }
-                        Log.d(TAG, "✅ Synced from Firebase: $programId")
+                        Log.d(TAG, "✅ Synced from Firebase: $programId (View Only: $isViewOnly)")
                     } else {
                         Log.d(TAG, "⚠️ Program not active or empty, clearing selection")
                         clearProgramSelection()
@@ -213,17 +345,23 @@ class HomeFragment : Fragment() {
                     clearProgramSelection()
                 }
 
-                binding.progressBar?.visibility = View.GONE
+                _binding?.let { it.progressBar?.visibility = View.GONE }
                 loadAndUpdateUIState()
             }
             .addOnFailureListener { e ->
+                // ✅ เช็คว่า Fragment ยัง attached อยู่
+                if (!isAdded || _binding == null) return@addOnFailureListener
+
                 Log.e(TAG, "❌ Failed to sync from Firebase: ${e.message}", e)
-                binding.progressBar?.visibility = View.GONE
+                _binding?.let { it.progressBar?.visibility = View.GONE }
                 loadAndUpdateUIState()
             }
     }
 
     private fun showExitProgramDialog() {
+        // ✅ เช็คว่า Fragment ยัง attached อยู่
+        if (!isAdded) return
+
         AlertDialog.Builder(requireContext())
             .setTitle("ออกจากตารางซ้อม")
             .setMessage("คุณต้องการออกจากตารางซ้อมนี้หรือไม่? ข้อมูลทั้งหมดจะถูกรีเซ็ตและคุณสามารถเลือกโปรแกรมใหม่ได้")
@@ -234,9 +372,6 @@ class HomeFragment : Fragment() {
             .show()
     }
 
-    /**
-     * ⭐ รีเซ็ตโปรแกรมทั้งหมดจาก Firebase - ลบข้อมูลออกทั้งหมด
-     */
     private fun resetProgramCompletelyFromFirebase() {
         val userId = auth.currentUser?.uid
         if (userId == null) {
@@ -246,25 +381,33 @@ class HomeFragment : Fragment() {
         }
 
         Log.d(TAG, "🗑️ Resetting program completely from Firebase")
-        binding.progressBar?.visibility = View.VISIBLE
+        _binding?.let { it.progressBar?.visibility = View.VISIBLE }
 
-        // ⭐ ลบ document ใน Athletes/{userId} ออกทั้งหมด
         firestore.collection("Athletes")
             .document(userId)
             .delete()
             .addOnSuccessListener {
+                if (!isAdded || _binding == null) return@addOnSuccessListener
+
                 Log.d(TAG, "✅ Athletes document deleted from Firebase")
 
-                // เคลียร์ Local
                 clearProgramSelection()
 
-                binding.progressBar?.visibility = View.GONE
-                Toast.makeText(requireContext(), "ออกจากโปรแกรมและรีเซ็ตเรียบร้อย", Toast.LENGTH_SHORT).show()
+                _binding?.let { it.progressBar?.visibility = View.GONE }
+
+                loadAndUpdateUIState()
+
+                Toast.makeText(
+                    requireContext(),
+                    "ออกจากโปรแกรมและรีเซ็ตเรียบร้อย",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             .addOnFailureListener { e ->
+                if (!isAdded || _binding == null) return@addOnFailureListener
+
                 Log.e(TAG, "❌ Failed to delete Athletes document: ${e.message}", e)
 
-                // ถ้าลบไม่ได้ ลอง update เป็น inactive
                 firestore.collection("Athletes")
                     .document(userId)
                     .update(
@@ -277,22 +420,42 @@ class HomeFragment : Fragment() {
                         )
                     )
                     .addOnSuccessListener {
+                        if (!isAdded || _binding == null) return@addOnSuccessListener
+
                         Log.d(TAG, "✅ Program reset by update")
                         clearProgramSelection()
-                        binding.progressBar?.visibility = View.GONE
-                        Toast.makeText(requireContext(), "ออกจากโปรแกรมเรียบร้อย", Toast.LENGTH_SHORT).show()
+                        _binding?.let { it.progressBar?.visibility = View.GONE }
+
+                        loadAndUpdateUIState()
+
+                        Toast.makeText(
+                            requireContext(),
+                            "ออกจากโปรแกรมเรียบร้อย",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                     .addOnFailureListener { updateError ->
+                        if (!isAdded || _binding == null) return@addOnFailureListener
+
                         Log.e(TAG, "❌ Failed to update: ${updateError.message}", updateError)
                         clearProgramSelection()
-                        binding.progressBar?.visibility = View.GONE
-                        Toast.makeText(requireContext(), "เกิดข้อผิดพลาด แต่ออกจากโปรแกรมแล้ว", Toast.LENGTH_SHORT).show()
+                        _binding?.let { it.progressBar?.visibility = View.GONE }
+
+                        loadAndUpdateUIState()
+
+                        Toast.makeText(
+                            requireContext(),
+                            "เกิดข้อผิดพลาด แต่ออกจากโปรแกรมแล้ว",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
             }
     }
 
     private fun observeViewModel() {
         viewModel.trainingPlan.observe(viewLifecycleOwner) { weeks ->
+            if (!isAdded || _binding == null) return@observe
+
             if (weeks.isNotEmpty()) {
                 Log.d(TAG, "✅ Training plan received: ${weeks.keys}")
 
@@ -311,10 +474,12 @@ class HomeFragment : Fragment() {
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
+            _binding?.let { it.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE }
         }
 
         viewModel.error.observe(viewLifecycleOwner) { error ->
+            if (!isAdded) return@observe
+
             error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 viewModel.clearError()
@@ -323,6 +488,18 @@ class HomeFragment : Fragment() {
     }
 
     private fun getTodayTraining(weeks: Map<String, Map<String, com.example.myproject.data.training.TrainingModel>>): com.example.myproject.data.training.TrainingModel? {
+        val userId = auth.currentUser?.uid ?: return null
+
+        val startDate = sharedPreferences.getLong("program_start_date", 0L)
+
+        if (startDate == 0L) {
+            Log.w(TAG, "⚠️ No start date found")
+            return null
+        }
+
+        val currentWeek = calculateCurrentWeek(startDate)
+        Log.d(TAG, "📅 Current week: $currentWeek")
+
         val calendar = Calendar.getInstance()
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
@@ -337,22 +514,34 @@ class HomeFragment : Fragment() {
             else -> ""
         }
 
-        Log.d(TAG, "🗓️ Today is: $todayName")
+        Log.d(TAG, "🗓️ Today is: $todayName in Week $currentWeek")
 
-        for ((weekKey, days) in weeks) {
-            for ((dayKey, training) in days) {
+        val weekKey = "week_$currentWeek"
+        val currentWeekData = weeks[weekKey]
+
+        if (currentWeekData != null) {
+            for ((dayKey, training) in currentWeekData) {
                 if (training.day?.contains(todayName, ignoreCase = true) == true) {
-                    Log.d(TAG, "✅ Found training for $todayName in $weekKey: $dayKey")
+                    Log.d(
+                        TAG,
+                        "✅ Found training for $todayName in Week $currentWeek: ${training.type}"
+                    )
                     return training
                 }
             }
         }
 
-        Log.d(TAG, "⚠️ No training found for $todayName")
+        Log.d(TAG, "⚠️ No training found for $todayName in Week $currentWeek")
         return null
     }
 
     private fun loadAndUpdateUIState() {
+        // ✅ เช็คว่า binding ยังไม่เป็น null
+        if (!isAdded || _binding == null) {
+            Log.w(TAG, "⚠️ Binding is null or fragment not attached, cannot update UI")
+            return
+        }
+
         val isProgramSelected = sharedPreferences.getBoolean("program_selected", false)
         val programName = sharedPreferences.getString("selected_program_name", "")
         val displayName = sharedPreferences.getString("selected_program_display_name", "")
@@ -399,6 +588,9 @@ class HomeFragment : Fragment() {
             remove("selected_program_name")
             remove("selected_program_display_name")
             remove("selected_sub_program_name")
+            remove("program_start_date")
+            remove("has_marked_initial_missed")
+            remove("is_view_only_program")
             apply()
         }
         Log.d(TAG, "🗑️ Program selection cleared")

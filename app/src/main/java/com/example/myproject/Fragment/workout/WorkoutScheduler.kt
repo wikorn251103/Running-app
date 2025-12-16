@@ -7,7 +7,7 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 /**
- * ⭐ ตั้งเวลาเช็คการซ้อมรายวัน
+ * ตั้งเวลาเช็คการซ้อมรายวัน
  */
 object WorkoutScheduler {
 

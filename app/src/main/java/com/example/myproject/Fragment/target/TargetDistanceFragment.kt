@@ -47,7 +47,7 @@ class TargetDistanceFragment : Fragment() {
     }
 
     /**
-     * ⭐ ฟังก์ชันช่วยในการ navigate ที่รองรับทั้ง MainActivity และ ProgramSelectionActivity
+     *  ฟังก์ชันช่วยในการ navigate ที่รองรับทั้ง MainActivity และ ProgramSelectionActivity
      */
     private fun navigateToFragment(fragment: Fragment) {
         when (activity) {

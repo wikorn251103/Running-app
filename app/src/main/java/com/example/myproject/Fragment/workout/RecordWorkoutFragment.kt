@@ -1,14 +1,18 @@
 package com.example.myproject.Fragment.workout
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.myproject.MainFragment
 import com.example.myproject.data.training.TrainingModel
 import com.example.myproject.databinding.FragmentRecordWorkoutBinding
 import com.google.android.material.chip.Chip
@@ -35,6 +39,8 @@ class RecordWorkoutFragment : Fragment() {
         private const val ARG_TRAINING_DATA = "training_data"
         private const val ARG_WEEK_NUMBER = "week_number"
         private const val ARG_DAY_NUMBER = "day_number"
+        const val REQUEST_KEY = "workout_saved"
+        const val RESULT_WEEK_NUMBER = "week_number"
 
         fun newInstance(
             trainingData: TrainingModel,
@@ -43,7 +49,7 @@ class RecordWorkoutFragment : Fragment() {
         ): RecordWorkoutFragment {
             val fragment = RecordWorkoutFragment()
             val bundle = Bundle().apply {
-                putParcelable(ARG_TRAINING_DATA, trainingData) // ⭐ เปลี่ยนเป็น putParcelable
+                putParcelable(ARG_TRAINING_DATA, trainingData)
                 putInt(ARG_WEEK_NUMBER, weekNumber)
                 putInt(ARG_DAY_NUMBER, dayNumber)
             }
@@ -64,7 +70,6 @@ class RecordWorkoutFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // รับข้อมูลด้วย getParcelable แทน getSerializable
         trainingData = arguments?.getParcelable(ARG_TRAINING_DATA)
         weekNumber = arguments?.getInt(ARG_WEEK_NUMBER) ?: 0
         dayNumber = arguments?.getInt(ARG_DAY_NUMBER) ?: 0
@@ -72,6 +77,9 @@ class RecordWorkoutFragment : Fragment() {
         setupUI()
         setupClickListeners()
         observeViewModel()
+
+        // เพิ่ม: ซ่อน BottomNavigation
+        hideBottomNavigation()
     }
 
     private fun setupUI() {
@@ -82,7 +90,6 @@ class RecordWorkoutFragment : Fragment() {
             binding.tvWeekDay.text = "สัปดาห์ที่ $weekNumber - วันที่ $dayNumber"
         }
 
-        // ตั้งค่า Feeling Chips
         setupFeelingChips()
     }
 
@@ -107,12 +114,11 @@ class RecordWorkoutFragment : Fragment() {
         }
 
         binding.btnCancel.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            parentFragmentManager.popBackStack()
         }
     }
 
     private fun saveWorkout() {
-        // ดึงข้อมูลจาก UI
         val distanceStr = binding.etDistance.text.toString()
         val hoursStr = binding.etHours.text.toString()
         val minutesStr = binding.etMinutes.text.toString()
@@ -120,7 +126,6 @@ class RecordWorkoutFragment : Fragment() {
         val heartRateStr = binding.etHeartRate.text.toString()
         val notes = binding.etNotes.text.toString()
 
-        // Validation
         if (distanceStr.isEmpty()) {
             Toast.makeText(requireContext(), "กรุณากรอกระยะทาง", Toast.LENGTH_SHORT).show()
             return
@@ -133,7 +138,6 @@ class RecordWorkoutFragment : Fragment() {
 
         val distance = distanceStr.toDoubleOrNull() ?: 0.0
 
-        // คำนวณเวลาเป็นวินาที
         val hours = hoursStr.toLongOrNull() ?: 0L
         val minutes = minutesStr.toLongOrNull() ?: 0L
         val seconds = secondsStr.toLongOrNull() ?: 0L
@@ -146,7 +150,6 @@ class RecordWorkoutFragment : Fragment() {
 
         val heartRate = heartRateStr.toIntOrNull() ?: 0
 
-        // บันทึกผ่าน ViewModel (แคลอรี่ = 0 เพราะไม่ใช้แล้ว)
         trainingData?.let { data ->
             viewModel.saveWorkout(
                 trainingData = data,
@@ -154,7 +157,7 @@ class RecordWorkoutFragment : Fragment() {
                 dayNumber = dayNumber,
                 distance = distance,
                 duration = duration,
-                calories = 0, // ไม่ใช้แคลอรี่แล้ว
+                calories = 0,
                 heartRate = heartRate,
                 notes = notes
             )
@@ -171,8 +174,15 @@ class RecordWorkoutFragment : Fragment() {
             if (success) {
                 Toast.makeText(requireContext(), "บันทึกการซ้อมเรียบร้อย", Toast.LENGTH_SHORT).show()
 
-                // กลับไปหน้า Training Schedule
-                requireActivity().supportFragmentManager.popBackStack()
+                // ส่งสัญญาณไปที่ MainFragment
+                val result = Bundle().apply {
+                    putInt("week_number", weekNumber)
+                }
+
+                parentFragmentManager.setFragmentResult("workout_saved_return_to_schedule", result)
+
+                // กลับไปหน้าเดิม
+                parentFragmentManager.popBackStack()
             }
         }
 
@@ -184,8 +194,24 @@ class RecordWorkoutFragment : Fragment() {
         }
     }
 
+    // เพิ่ม: ซ่อน BottomNavigation
+    private fun hideBottomNavigation() {
+        val mainFragment = parentFragment as? MainFragment
+        mainFragment?.setBottomNavVisible(false)
+    }
+
+    // เพิ่ม: แสดง BottomNavigation กลับ
+    private fun showBottomNavigation() {
+        val mainFragment = parentFragment as? MainFragment
+        mainFragment?.setBottomNavVisible(true)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+
+        // แสดง BottomNavigation กลับเมื่อออกจากหน้านี้
+        showBottomNavigation()
+
         _binding = null
     }
 }

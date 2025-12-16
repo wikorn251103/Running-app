@@ -9,15 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
-import com.example.myproject.Fragment.training.TrainingScheduleFragment
-import com.example.myproject.MainActivity
-import com.example.myproject.MainFragment
 import com.example.myproject.R
 import com.example.myproject.databinding.FragmentRunningGoal5kBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-
+import java.util.Calendar
 
 class RunningGoal5kFragment : Fragment() {
 
@@ -60,10 +56,9 @@ class RunningGoal5kFragment : Fragment() {
             binding.button1,
             binding.button2,
             binding.button3,
-            binding.button4,
             binding.button5,
-            binding.button6
-        )
+
+            )
 
         timeButtons.forEachIndexed { index, button ->
             button.setOnClickListener {
@@ -78,7 +73,7 @@ class RunningGoal5kFragment : Fragment() {
     private fun updateButtonStates(buttons: List<View>, selectedIndex: Int) {
         buttons.forEachIndexed { i, btn ->
             if (i == selectedIndex) {
-                btn.setBackgroundResource(R.drawable.time_button_selected_bg)
+                btn.setBackgroundResource(R.drawable.txt_bg)
                 (btn as? androidx.appcompat.widget.AppCompatButton)?.setTextColor(
                     resources.getColor(R.color.white, null)
                 )
@@ -140,7 +135,6 @@ class RunningGoal5kFragment : Fragment() {
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    // ⭐ เปลี่ยนจาก currentProgramId เป็น programId
                     val currentProgramId = document.getString("programId")
                     val isActive = document.getBoolean("isActive") ?: false
 
@@ -179,6 +173,7 @@ class RunningGoal5kFragment : Fragment() {
             .show()
     }
 
+    //func2
     private fun startCreatingProgram(programId: String, displayName: String) {
         val userId = auth.currentUser?.uid
         if (userId == null) {
@@ -196,20 +191,21 @@ class RunningGoal5kFragment : Fragment() {
                 if (document.exists()) {
                     val trainingData = document.data?.toMutableMap() ?: mutableMapOf()
 
-                    // ปรับโครงสร้างให้สอดคล้องกับระบบบันทึกการซ้อม
+                    // ✅ เพิ่ม startDate = วันที่เริ่มใช้โปรแกรม
+                    val currentTime = System.currentTimeMillis()
+
                     trainingData["userId"] = userId
                     trainingData["programId"] = programId
                     trainingData["programDisplayName"] = displayName
-                    trainingData["subProgramName"] = "โปรแกรมย่อย 5K" // เพิ่มชื่อโปรแกรมย่อย
+                    trainingData["subProgramName"] = "โปรแกรมย่อย 5K"
                     trainingData["isActive"] = true
-                    trainingData["createdAt"] = System.currentTimeMillis()
-                    trainingData["updatedAt"] = System.currentTimeMillis()
+                    trainingData["startDate"] = currentTime // ✅ เพิ่มวันที่เริ่ม
+                    trainingData["createdAt"] = currentTime
+                    trainingData["updatedAt"] = currentTime
 
-                    // ลบ field ที่ไม่จำเป็น
-                    trainingData.remove("currentProgramId") // ใช้ programId แทน
-                    trainingData.remove("lastUpdated") // ใช้ updatedAt แทน
+                    trainingData.remove("currentProgramId")
+                    trainingData.remove("lastUpdated")
 
-                    // เพิ่ม isCompleted = false ให้ทุกวันในตาราง
                     val weeks = trainingData["weeks"] as? Map<*, *>
                     if (weeks != null) {
                         val updatedWeeks = mutableMapOf<String, Any>()
@@ -219,8 +215,8 @@ class RunningGoal5kFragment : Fragment() {
 
                             days.forEach { (dayKey, dayData) ->
                                 val dayMap = (dayData as? Map<*, *>)?.toMutableMap() ?: mutableMapOf()
-                                dayMap["isCompleted"] = false // เพิ่ม isCompleted
-                                dayMap["isMissed"] = false // เพิ่มบรรทัดนี้ - ขาดซ้อมหรือยัง
+                                dayMap["isCompleted"] = false
+                                dayMap["isMissed"] = false
                                 updatedDays[dayKey.toString()] = dayMap
                             }
 
@@ -229,7 +225,8 @@ class RunningGoal5kFragment : Fragment() {
                         trainingData["weeks"] = updatedWeeks
                     }
 
-                    saveToAthletesCollection(userId, trainingData, programId, displayName)
+                    // ✅ บันทึกและมาร์ควันที่ขาดซ้อม
+                    saveToAthletesCollectionAndMarkMissed(userId, trainingData, programId, displayName, currentTime)
                 } else {
                     binding.startProgramBtn.isEnabled = true
                     binding.startProgramBtn.text = "เริ่มโปรแกรม"
@@ -244,11 +241,13 @@ class RunningGoal5kFragment : Fragment() {
             }
     }
 
-    private fun saveToAthletesCollection(
+    // ฟังก์ชันใหม่: บันทึกและมาร์ควันที่ขาดซ้อม
+    private fun saveToAthletesCollectionAndMarkMissed(
         userId: String,
         trainingData: MutableMap<String, Any>,
         programId: String,
-        displayName: String
+        displayName: String,
+        startDate: Long
     ) {
         firestore.collection("Athletes")
             .document(userId)
@@ -256,19 +255,18 @@ class RunningGoal5kFragment : Fragment() {
             .addOnSuccessListener {
                 Log.d(TAG, "✅ Training program saved to Athletes/$userId successfully")
 
-                saveProgramToLocal(programId, displayName)
+                // ✅ มาร์ควันที่ขาดซ้อมก่อนเริ่มโปรแกรม
+                markMissedDaysBeforeStart(userId, startDate)
+
+                saveProgramToLocal(programId, displayName, startDate)
 
                 binding.startProgramBtn.isEnabled = true
                 binding.startProgramBtn.text = "เริ่มโปรแกรม"
 
                 Toast.makeText(requireContext(), "เริ่มโปรแกรมสำเร็จ", Toast.LENGTH_SHORT).show()
 
-//                val fragment = TrainingScheduleFragment.newInstance(programId)
-//                (activity as? MainActivity)?.replaceFragment(fragment)
-
                 activity?.supportFragmentManager?.popBackStack()
                 activity?.supportFragmentManager?.popBackStack()
-
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "❌ Failed to save to Athletes collection", e)
@@ -278,16 +276,70 @@ class RunningGoal5kFragment : Fragment() {
             }
     }
 
-    private fun saveProgramToLocal(programName: String, displayName: String) {
+    // ✅ ฟังก์ชันมาร์ควันที่ขาดซ้อมก่อนเริ่มโปรแกรม
+    private fun markMissedDaysBeforeStart(userId: String, startDate: Long) {
+        val startCalendar = java.util.Calendar.getInstance().apply {
+            timeInMillis = startDate
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
+
+        // คำนวณว่าเริ่มโปรแกรมวันไหน (1=จันทร์, 2=อังคาร, ..., 7=อาทิตย์)
+        val startDayOfWeek = startCalendar.get(java.util.Calendar.DAY_OF_WEEK)
+        val programStartDay = when (startDayOfWeek) {
+            java.util.Calendar.SUNDAY -> 7
+            java.util.Calendar.MONDAY -> 1
+            java.util.Calendar.TUESDAY -> 2
+            java.util.Calendar.WEDNESDAY -> 3
+            java.util.Calendar.THURSDAY -> 4
+            java.util.Calendar.FRIDAY -> 5
+            java.util.Calendar.SATURDAY -> 6
+            else -> 1
+        }
+
+        Log.d(TAG, "📅 Program starts on day: $programStartDay (1=จันทร์, 7=อาทิตย์)")
+
+        // ถ้าเริ่มโปรแกรมวันพุธ (day 3) → มาร์ควันจันทร์และอังคาร (day 1-2) ว่าขาดซ้อม
+        if (programStartDay > 1) {
+            val updates = mutableMapOf<String, Any>()
+
+            for (day in 1 until programStartDay) {
+                val fieldPath = "week_1.day_$day.isMissed"
+                updates[fieldPath] = true
+                Log.d(TAG, "❌ Marking day $day as missed before program start")
+            }
+
+            // อัปเดต Firebase
+            if (updates.isNotEmpty()) {
+                firestore.collection("Athletes")
+                    .document(userId)
+                    .update(updates)
+                    .addOnSuccessListener {
+                        Log.d(TAG, "✅ Marked ${updates.size} days as missed before start")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "❌ Failed to mark missed days", e)
+                    }
+            }
+        } else {
+            Log.d(TAG, "✅ Program starts on Monday, no days to mark as missed")
+        }
+    }
+
+    // ✅ แก้ไขเพื่อบันทึก startDate
+    private fun saveProgramToLocal(programName: String, displayName: String, startDate: Long) {
         sharedPreferences.edit().apply {
             putBoolean("program_selected", true)
             putString("selected_program_name", programName)
             putString("selected_program_display_name", displayName)
             putString("selected_sub_program_name", "โปรแกรมย่อย 5K")
+            putLong("program_start_date", startDate) // ✅ บันทึก startDate
             putLong("selected_at", System.currentTimeMillis())
             apply()
         }
-        Log.d(TAG, "Program saved to Local Storage: $programName")
+        Log.d(TAG, "✅ Program saved to Local Storage: $programName with startDate: $startDate")
     }
 
     override fun onDestroyView() {

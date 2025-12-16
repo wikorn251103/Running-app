@@ -16,13 +16,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.util.Calendar
-
-/**
- * Worker สำหรับเช็คการซ้อมรายวัน
- * - เช็คว่าวันนี้มีตารางซ้อมหรือไม่
- * - ถ้ามี แจ้งเตือนให้ไปบันทึก
- * - ถ้าไม่บันทึกภายในเวลา → ขาดซ้อม
- */
 class WorkoutTrackerService(
     context: Context,
     params: WorkerParameters
@@ -170,7 +163,7 @@ class WorkoutTrackerService(
     }
 
     /**
-     * ⭐ ทำเครื่องหมายว่าขาดซ้อม
+     * ทำเครื่องหมายว่าขาดซ้อม
      */
     private suspend fun markAsMissed(userId: String, weekNumber: Int, dayNumber: Int) {
         try {
@@ -192,7 +185,7 @@ class WorkoutTrackerService(
     }
 
     /**
-     * 🔔 แจ้งเตือนให้บันทึกการซ้อม
+     * แจ้งเตือนให้บันทึกการซ้อม
      */
     private fun sendReminderNotification(trainingType: String, description: String) {
         createNotificationChannel()
@@ -224,7 +217,7 @@ class WorkoutTrackerService(
     }
 
     /**
-     * 🔔 แจ้งเตือนว่าขาดซ้อม
+     * แจ้งเตือนว่าขาดซ้อม
      */
     private fun sendMissedNotification() {
         createNotificationChannel()

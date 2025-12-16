@@ -26,7 +26,7 @@ class HomeViewModel : ViewModel() {
     }
 
     /**
-     * ⭐ ดึงข้อมูลจาก Athletes/{userId}
+     * ดึงข้อมูลจาก Athletes/{userId}
      */
     fun loadTrainingPlanFromAthlete(planId: String) {
         viewModelScope.launch {

@@ -130,7 +130,6 @@ class AdminDashboardFragment : Fragment() {
         // จัดการบทความ
         binding.cardManageArticles.setOnClickListener {
             Toast.makeText(requireContext(), "คลิกจัดการบทความ", Toast.LENGTH_SHORT).show()
-            //navigateToFragment(ManageArticlesFragment.newInstance(), addToBackStack = true)
         }
 
         // จัดการดริล
@@ -142,7 +141,7 @@ class AdminDashboardFragment : Fragment() {
         // ดูรายงานและสถิติ
         binding.cardViewReports.setOnClickListener {
             Toast.makeText(requireContext(), "คลิกดูรรายงานและสถิติ", Toast.LENGTH_SHORT).show()
-            //navigateToFragment(ReportsFragment.newInstance(), addToBackStack = true)
+            navigateToFragment(ReportsFragment.newInstance(), addToBackStack = true)
         }
 
         // ออกจากระบบ

@@ -67,7 +67,7 @@
                     android:textColor="@color/white"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="4dp"
-                    android:background="@drawable/btn_bg" />
+                    android:background="@drawable/txt_bg" />
 
             </LinearLayout>
 

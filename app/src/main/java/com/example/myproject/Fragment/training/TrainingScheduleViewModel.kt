@@ -7,11 +7,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myproject.data.training.TrainingModel
 import com.example.myproject.data.training.TrainingRepository
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class TrainingScheduleViewModel(private val repository: TrainingRepository) : ViewModel() {
 
@@ -24,7 +29,7 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
 
-    // ⭐ เพิ่ม LiveData สำหรับสัปดาห์ปัจจุบัน
+    // LiveData สำหรับสัปดาห์ปัจจุบัน
     private val _currentWeek = MutableLiveData<Int>()
     val currentWeek: LiveData<Int> get() = _currentWeek
 
@@ -39,79 +44,123 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
         private const val TAG = "TrainingScheduleVM"
     }
 
+    // ---------- Helpers: อ่าน startDate ให้ยืดหยุ่น ----------
+    private fun DocumentSnapshot.readStartDateMillis(): Long? {
+        val raw = get("startDate") ?: return null
+        return when (raw) {
+            is Timestamp -> raw.toDate().time
+            is Long -> raw
+            is Double -> raw.toLong()
+            is String -> {
+                // พยายาม parse เป็น long ก่อน (เช่น "1730962800000")
+                runCatching { raw.toLong() }
+                    .getOrElse {
+                        // เผื่อเคยเก็บเป็น "yyyy-MM-dd"
+                        runCatching {
+                            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                            sdf.parse(raw)?.time
+                        }.getOrNull()
+                    }
+            }
+            else -> null
+        }
+    }
+
+    // (ทางเลือก) แปลงค่าเก่าเป็น Timestamp เพื่อทำให้สคีมาเสมอ
+    private fun migrateStartDateToTimestampIfNeeded(doc: DocumentSnapshot, millis: Long) {
+        val current = doc.get("startDate")
+        if (current !is Timestamp) {
+            doc.reference.update("startDate", Timestamp(Date(millis)))
+                .addOnSuccessListener { Log.d(TAG, "Migrated startDate → Timestamp") }
+                .addOnFailureListener { e -> Log.w(TAG, "Migration failed: ${e.message}") }
+        }
+    }
+    // --------------------------------------------------------
+
     /**
-     * ⭐ โหลดข้อมูลแบบ Real-time
+     * โหลดข้อมูลแบบ Real-time
      */
     fun loadTrainingWeekRealtime(week: Int) {
         _loading.value = true
         _error.value = null
         _currentWeek.value = week
 
-        Log.d(TAG, "📡 Loading week $week with real-time updates")
+        Log.d(TAG, "Loading week $week with real-time updates")
 
         // ยกเลิก listener เก่า
         weekListener?.remove()
 
         // สร้าง listener ใหม่
-        weekListener = repository.getTrainingWeekDataRealtime(week,
+        weekListener = repository.getTrainingWeekDataRealtime(
+            week,
             onSuccess = { days ->
                 _loading.value = false
                 _trainingDays.value = days
-                Log.d(TAG, "✅ Received ${days.size} days for week $week")
+                Log.d(TAG, "Received ${days.size} days for week $week")
             },
             onFailure = { exception ->
                 _loading.value = false
                 _error.value = exception.message
-                Log.e(TAG, "❌ Error loading week $week: ${exception.message}")
+                Log.e(TAG, "Error loading week $week: ${exception.message}")
             }
         )
     }
 
     /**
-     * ⭐ คำนวณสัปดาห์ปัจจุบันจาก Firebase
+     * คำนวณสัปดาห์ปัจจุบันจาก Firebase
      */
     fun calculateAndLoadCurrentWeek() {
         val userId = auth.currentUser?.uid
         if (userId == null) {
-            Log.e(TAG, "❌ User not logged in")
+            Log.e(TAG, "User not logged in")
             _currentWeek.value = 1
             loadTrainingWeekRealtime(1)
             return
         }
 
-        Log.d(TAG, "🔄 Calculating current week for user: $userId")
+        Log.d(TAG, "Calculating current week for user: $userId")
 
         firestore.collection("Athletes")
             .document(userId)
             .get()
             .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val startDate = document.getTimestamp("startDate")
-                    val calculatedWeek = calculateWeekFromStartDate(startDate?.toDate()?.time ?: 0L)
-
-                    Log.d(TAG, "📅 Calculated current week: $calculatedWeek")
-
-                    _currentWeek.value = calculatedWeek
-                    loadTrainingWeekRealtime(calculatedWeek)
-                } else {
-                    Log.w(TAG, "⚠️ No Athletes document found, defaulting to week 1")
+                if (!document.exists()) {
+                    Log.w(TAG, "No Athletes document found, defaulting to week 1")
                     _currentWeek.value = 1
                     loadTrainingWeekRealtime(1)
+                    return@addOnSuccessListener
                 }
+
+                val startMillis = document.readStartDateMillis()
+                if (startMillis == null) {
+                    Log.w(TAG, "startDate missing/invalid; defaulting to week 1")
+                    _currentWeek.value = 1
+                    loadTrainingWeekRealtime(1)
+                    return@addOnSuccessListener
+                }
+
+                // (optional) ทำ migration ให้เป็น Timestamp เสมอ
+                migrateStartDateToTimestampIfNeeded(document, startMillis)
+
+                val calculatedWeek = calculateWeekFromStartDate(startMillis)
+                Log.d(TAG, "Calculated current week: $calculatedWeek")
+
+                _currentWeek.value = calculatedWeek
+                loadTrainingWeekRealtime(calculatedWeek)
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "❌ Failed to fetch Athletes document: ${e.message}", e)
+                Log.e(TAG, "Failed to fetch Athletes document: ${e.message}", e)
                 _currentWeek.value = 1
                 loadTrainingWeekRealtime(1)
             }
     }
 
     /**
-     * ⭐ คำนวณสัปดาห์จากวันที่เริ่มโปรแกรม
+     * คำนวณสัปดาห์จากวันที่เริ่มโปรแกรม
      */
     private fun calculateWeekFromStartDate(startDateMillis: Long): Int {
         if (startDateMillis == 0L) {
-            Log.w(TAG, "⚠️ No start date, defaulting to week 1")
+            Log.w(TAG, "No start date, defaulting to week 1")
             return 1
         }
 
@@ -130,17 +179,18 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
             set(Calendar.MILLISECOND, 0)
         }
 
-        val daysDiff = ((today.timeInMillis - startCalendar.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
+        val daysDiff =
+            ((today.timeInMillis - startCalendar.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
         val currentWeek = (daysDiff / 7) + 1
 
-        Log.d(TAG, "📊 Days since start: $daysDiff, Calculated week: $currentWeek")
+        Log.d(TAG, "Days since start: $daysDiff, Calculated week: $currentWeek")
 
         // จำกัดไม่ให้น้อยกว่า 1 และไม่เกิน 12 สัปดาห์
         return currentWeek.coerceIn(1, 12)
     }
 
     /**
-     * ⭐ ตรวจสอบวันที่ขาดซ้อม (เช็ควันที่ผ่านไปแล้ว)
+     * ตรวจสอบวันที่ขาดซ้อม (เช็ควันที่ผ่านไปแล้ว)
      */
     fun checkMissedDays(week: Int) {
         viewModelScope.launch {
@@ -150,69 +200,75 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
                 .document(userId)
                 .get()
                 .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        val weekData = document.get("week_$week") as? HashMap<*, *> ?: return@addOnSuccessListener
+                    if (!document.exists()) return@addOnSuccessListener
 
-                        val today = Calendar.getInstance()
-                        today.set(Calendar.HOUR_OF_DAY, 0)
-                        today.set(Calendar.MINUTE, 0)
-                        today.set(Calendar.SECOND, 0)
-                        today.set(Calendar.MILLISECOND, 0)
+                    val weekData = document.get("week_$week") as? Map<*, *> ?: return@addOnSuccessListener
 
-                        val programStartDate = document.getTimestamp("startDate")?.toDate()
+                    val today = Calendar.getInstance().apply {
+                        set(Calendar.HOUR_OF_DAY, 0)
+                        set(Calendar.MINUTE, 0)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }
 
-                        if (programStartDate != null) {
-                            val programStart = Calendar.getInstance().apply {
-                                time = programStartDate
-                                set(Calendar.HOUR_OF_DAY, 0)
-                                set(Calendar.MINUTE, 0)
-                                set(Calendar.SECOND, 0)
-                                set(Calendar.MILLISECOND, 0)
-                            }
+                    val startMillis = document.readStartDateMillis() ?: run {
+                        Log.w(TAG, "startDate missing/invalid; skip missed-day check")
+                        return@addOnSuccessListener
+                    }
 
-                            for (i in 1..7) {
-                                val dayData = weekData["day_$i"] as? HashMap<*, *> ?: continue
+                    // (optional) migrate
+                    migrateStartDateToTimestampIfNeeded(document, startMillis)
 
-                                val isCompleted = dayData["isCompleted"] as? Boolean ?: false
-                                val isMissed = dayData["isMissed"] as? Boolean ?: false
-                                val type = dayData["type"] as? String ?: ""
+                    val programStart = Calendar.getInstance().apply {
+                        timeInMillis = startMillis
+                        set(Calendar.HOUR_OF_DAY, 0)
+                        set(Calendar.MINUTE, 0)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }
 
-                                // คำนวณวันที่ของ day นั้นๆ
-                                val dayDate = Calendar.getInstance().apply {
-                                    time = programStart.time
-                                    add(Calendar.DAY_OF_YEAR, ((week - 1) * 7) + (i - 1))
-                                }
+                    for (i in 1..7) {
+                        val dayData = weekData["day_$i"] as? Map<*, *> ?: continue
 
-                                // ถ้าวันนั้นผ่านไปแล้ว และไม่ได้ซ้อม และไม่ใช่ Rest Day
-                                if (dayDate.before(today) &&
+                        val isCompleted = dayData["isCompleted"] as? Boolean ?: false
+                        val isMissed = dayData["isMissed"] as? Boolean ?: false
+                        val type = (dayData["type"] as? String).orEmpty()
+
+                        // วันที่ของ day นั้นๆ
+                        val dayDate = Calendar.getInstance().apply {
+                            time = programStart.time
+                            add(Calendar.DAY_OF_YEAR, ((week - 1) * 7) + (i - 1))
+                        }
+
+                        // ถ้าวันนั้นผ่านไปแล้ว และไม่ได้ซ้อม และไม่ใช่ Rest Day
+                        val shouldMarkMissed =
+                            dayDate.before(today) &&
                                     !isCompleted &&
                                     !isMissed &&
-                                    !type.equals("Rest Day", ignoreCase = true)) {
+                                    !type.equals("Rest Day", ignoreCase = true)
 
-                                    // Mark as missed
-                                    val fieldPath = "week_$week.day_$i.isMissed"
-                                    firestore.collection("Athletes")
-                                        .document(userId)
-                                        .update(fieldPath, true)
-                                        .addOnSuccessListener {
-                                            Log.d(TAG, "✅ Marked week $week day $i as missed")
-                                        }
-                                        .addOnFailureListener { e ->
-                                            Log.e(TAG, "❌ Failed to mark day as missed", e)
-                                        }
+                        if (shouldMarkMissed) {
+                            val fieldPath = "week_$week.day_$i.isMissed"
+                            firestore.collection("Athletes")
+                                .document(userId)
+                                .update(fieldPath, true)
+                                .addOnSuccessListener {
+                                    Log.d(TAG, "Marked week $week day $i as missed")
                                 }
-                            }
+                                .addOnFailureListener { e ->
+                                    Log.e(TAG, "Failed to mark day as missed", e)
+                                }
                         }
                     }
                 }
                 .addOnFailureListener { e ->
-                    Log.e(TAG, "❌ Error checking missed days", e)
+                    Log.e(TAG, "Error checking missed days", e)
                 }
         }
     }
 
     /**
-     * ⭐ ตรวจสอบว่ามีการซ้อมที่ค้างอยู่หรือไม่
+     * ตรวจสอบว่ามีการซ้อมที่ค้างอยู่หรือไม่
      */
     fun checkPendingWorkouts(callback: (hasPending: Boolean, pendingWeek: Int?) -> Unit) {
         val userId = auth.currentUser?.uid
@@ -225,36 +281,39 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
             .document(userId)
             .get()
             .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val startDate = document.getTimestamp("startDate")
-                    val currentWeek = calculateWeekFromStartDate(startDate?.toDate()?.time ?: 0L)
+                if (!document.exists()) {
+                    callback(false, null)
+                    return@addOnSuccessListener
+                }
 
-                    // ตรวจสอบว่ามีการซ้อมที่ยังไม่เสร็จในสัปดาห์ปัจจุบันหรือไม่
-                    val weekData = document.get("week_$currentWeek") as? HashMap<*, *>
+                val startMillis = document.readStartDateMillis()
+                val currentWeek = calculateWeekFromStartDate(startMillis ?: 0L)
 
-                    var hasPending = false
-                    if (weekData != null) {
-                        for (i in 1..7) {
-                            val dayData = weekData["day_$i"] as? HashMap<*, *> ?: continue
-                            val isCompleted = dayData["isCompleted"] as? Boolean ?: false
-                            val type = dayData["type"] as? String ?: ""
+                // (optional) migrate
+                if (startMillis != null) migrateStartDateToTimestampIfNeeded(document, startMillis)
 
-                            // ถ้ายังไม่ได้ซ้อมและไม่ใช่ Rest Day
-                            if (!isCompleted && !type.equals("Rest Day", ignoreCase = true)) {
-                                hasPending = true
-                                break
-                            }
+                val weekData = document.get("week_$currentWeek") as? Map<*, *>
+
+                var hasPending = false
+                if (weekData != null) {
+                    for (i in 1..7) {
+                        val dayData = weekData["day_$i"] as? Map<*, *> ?: continue
+                        val isCompleted = dayData["isCompleted"] as? Boolean ?: false
+                        val type = (dayData["type"] as? String).orEmpty()
+
+                        // ถ้ายังไม่ได้ซ้อมและไม่ใช่ Rest Day
+                        if (!isCompleted && !type.equals("Rest Day", ignoreCase = true)) {
+                            hasPending = true
+                            break
                         }
                     }
-
-                    callback(hasPending, if (hasPending) currentWeek else null)
-                    Log.d(TAG, "✅ Checked pending workouts: hasPending=$hasPending, week=$currentWeek")
-                } else {
-                    callback(false, null)
                 }
+
+                callback(hasPending, if (hasPending) currentWeek else null)
+                Log.d(TAG, "Checked pending workouts: hasPending=$hasPending, week=$currentWeek")
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "❌ Error checking pending workouts", e)
+                Log.e(TAG, "Error checking pending workouts", e)
                 callback(false, null)
             }
     }
@@ -267,16 +326,18 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
         _error.value = null
         _currentWeek.value = week
 
-        repository.getTrainingWeekData(planId, week,
+        repository.getTrainingWeekData(
+            planId,
+            week,
             onSuccess = { days ->
                 _loading.value = false
                 _trainingDays.value = days
-                Log.d(TAG, "✅ Loaded ${days.size} days for week $week")
+                Log.d(TAG, "Loaded ${days.size} days for week $week")
             },
             onFailure = { exception ->
                 _loading.value = false
                 _error.value = exception.message
-                Log.e(TAG, "❌ Error loading week $week: ${exception.message}")
+                Log.e(TAG, "Error loading week $week: ${exception.message}")
             }
         )
     }
@@ -287,7 +348,6 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
 
     override fun onCleared() {
         super.onCleared()
-        // ยกเลิก listener เมื่อ ViewModel ถูกทำลาย
         weekListener?.remove()
         repository.removeListener()
         Log.d(TAG, "🔕 Listeners cleaned up")

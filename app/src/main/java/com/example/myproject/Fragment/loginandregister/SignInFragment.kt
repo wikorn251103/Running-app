@@ -83,7 +83,7 @@ class SignInFragment : Fragment() {
 
             it.postDelayed({
                 (activity as? MainActivity)?.replaceFragment(SignUpFragment.newInstance())
-            }, 200)
+            }, 100)
         }
     }
 

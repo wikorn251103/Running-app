@@ -48,11 +48,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="พร้อมเริ่มต้นการผจญภัยในการวิ่ง\nของคุณแล้วหรือยัง?"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textAlignment="center"
         android:textColor="@color/grey_text"
         android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@+id/textView13" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -176,9 +176,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout7">
 
+        <!-- ✅ ปุ่มย้อนกลับ (ซ้าย) -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/startBtn1"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
@@ -187,14 +188,14 @@
             android:textColor="@color/black"
             android:textSize="18sp" />
 
+        <!-- ✅ ปุ่มเริ่มโปรแกรม (ขวา) -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/backBtnRookie"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:background="@drawable/btn_bg"
+            android:background="@drawable/txt_bg"
             android:text="เริ่มโปรแกรม"
             android:textColor="@color/white"
             android:textSize="18sp" />
@@ -203,15 +204,16 @@
 
     <TextView
         android:id="@+id/textView32"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:text="โปรแกรมสำหรับผู้เริ่มต้นวิ่ง เน้นการสร้างพื้นฐานความแข็งแรงและความอดทน ผลผลสมมะระว่างการเดินและการวิ่ง"
+        android:text="โปรแกรมสำหรับผู้เริ่มต้นวิ่ง เน้นการสร้างพื้นฐานความแข็งแรงและความอดทน ผสมผสานระหว่างการเดินและการวิ่ง"
+        android:textAlignment="center"
+        android:textColor="@color/grey_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

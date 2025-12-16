@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#F5F5F5"
+    android:background="#FAFAFA"
     tools:context=".Fragment.home.HomeFragment">
 
     <!-- Root LinearLayout -->
@@ -21,23 +21,23 @@
             android:layout_height="wrap_content"
             android:background="@color/purple"
             android:orientation="vertical"
-            android:paddingTop="40dp"
-            android:paddingBottom="32dp"
-            android:elevation="4dp">
+            android:paddingTop="48dp"
+            android:paddingBottom="40dp"
+            android:elevation="2dp">
 
             <!-- ไอคอนแอป -->
             <androidx.cardview.widget.CardView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:layout_gravity="center_horizontal"
-                app:cardCornerRadius="50dp"
+                app:cardCornerRadius="40dp"
                 app:cardElevation="8dp"
                 android:backgroundTint="@color/white">
 
                 <ImageView
                     android:id="@+id/imageView2"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:layout_gravity="center"
                     android:contentDescription="@string/app_icon"
                     android:src="@drawable/ic_shoe"
@@ -48,32 +48,32 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="16dp"
                 android:text="Recommended Running"
                 android:textAlignment="center"
                 android:textColor="@color/white"
-                android:textSize="28sp"
+                android:textSize="26sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.02" />
+                android:letterSpacing="0.01" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginTop="6dp"
                 android:text="แอปพลิเคชันสำหรับคุณ"
                 android:textColor="#E1BEE7"
-                android:textSize="16sp"
-                android:alpha="0.9" />
+                android:textSize="15sp"
+                android:alpha="0.95" />
         </LinearLayout>
 
         <!-- ================= เลือกตารางซ้อม ================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="28dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="20dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -84,16 +84,16 @@
                 android:layout_marginBottom="8dp">
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    app:cardCornerRadius="20dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="0dp"
-                    android:backgroundTint="#E8EAF6">
+                    android:backgroundTint="#F3E5F5">
 
                     <ImageView
                         android:id="@+id/imageView5"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_article"
                         app:tint="@color/purple" />
@@ -106,20 +106,20 @@
                     android:layout_weight="1"
                     android:paddingStart="16dp"
                     android:text="เลือกตารางซ้อมวิ่งของคุณ"
-                    android:textColor="@color/black"
-                    android:textSize="24sp"
+                    android:textColor="#212121"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="56dp"
+                android:layout_marginStart="64dp"
                 android:layout_marginTop="4dp"
                 android:text="เริ่มต้นการเดินทางสู่การวิ่งที่ดีกว่าด้วยโปรแกรมที่เหมาะสมกับคุณ"
-                android:textColor="@color/grey_text"
-                android:textSize="16sp"
-                android:lineSpacingExtra="4dp" />
+                android:textColor="#757575"
+                android:textSize="15sp"
+                android:lineSpacingExtra="3dp" />
         </LinearLayout>
 
         <!-- ================= STATE 1 : ยังไม่เลือกตารางซ้อม ================= -->
@@ -127,12 +127,13 @@
             android:id="@+id/notSelectedStateCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:layout_marginTop="20dp"
             android:visibility="visible"
             app:cardCornerRadius="20dp"
-            app:cardElevation="6dp">
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -144,22 +145,22 @@
                     android:id="@+id/headerLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/gradient_header_bg"
+                    android:background="@drawable/gradient_card_header"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="20dp">
 
                     <androidx.cardview.widget.CardView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        app:cardCornerRadius="30dp"
-                        app:cardElevation="0dp"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        app:cardCornerRadius="32dp"
+                        app:cardElevation="4dp"
                         android:backgroundTint="@color/white">
 
                         <ImageView
                             android:id="@+id/imageView6"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_bolt"
                             app:tint="@color/purple" />
@@ -178,7 +179,7 @@
                             android:layout_height="wrap_content"
                             android:text="เริ่มต้นการซ้อม"
                             android:textColor="@color/white"
-                            android:textSize="22sp"
+                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -187,7 +188,7 @@
                             android:layout_marginTop="4dp"
                             android:text="เลือกโปรแกรมที่เหมาะสมกับคุณ"
                             android:textColor="#E1BEE7"
-                            android:textSize="15sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -196,7 +197,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp"
+                    android:padding="24dp"
                     android:background="@color/white">
 
                     <!-- Description -->
@@ -206,52 +207,60 @@
                         android:layout_height="wrap_content"
                         android:text="พร้อมเริ่มการวิ่งแล้วหรือยัง? เลือกโปรแกรมการซ้อมที่เหมาะสมกับระดับความสามารถของคุณ"
                         android:textColor="#424242"
-                        android:textSize="16sp"
+                        android:textSize="15sp"
                         android:lineSpacingExtra="4dp" />
 
                     <!-- Footer -->
-                    <LinearLayout
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:background="@drawable/ripple_purple_light"
-                        android:padding="16dp"
+                        android:layout_marginTop="20dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="#F3E5F5"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        android:foreground="?android:attr/selectableItemBackground">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="16dp">
 
-                            <TextView
-                                android:id="@+id/textView5"
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="3 โปรแกรมให้เลือก"
-                                android:textColor="@color/purple"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="แตะเพื่อดูรายละเอียด"
-                                android:textColor="@color/grey_text"
-                                android:textSize="14sp" />
+                                <TextView
+                                    android:id="@+id/textView5"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="3 โปรแกรมให้เลือก"
+                                    android:textColor="@color/purple"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="แตะเพื่อดูรายละเอียด"
+                                    android:textColor="#757575"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/nextBtn"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/baseline_arrow_forward_ios_24"
+                                app:tint="@color/purple" />
                         </LinearLayout>
-
-                        <ImageView
-                            android:id="@+id/nextBtn"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:src="@drawable/baseline_arrow_forward_ios_24"
-                            app:tint="@color/purple" />
-                    </LinearLayout>
+                    </androidx.cardview.widget.CardView>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -261,8 +270,8 @@
             android:id="@+id/selectedStateLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:orientation="vertical"
             android:visibility="gone">
 
@@ -276,7 +285,8 @@
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="8dp">
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -287,9 +297,9 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/gradient_header_bg"
+                        android:background="@color/purple"
                         android:orientation="vertical"
-                        android:padding="24dp"
+                        android:padding="28dp"
                         android:gravity="center">
 
                         <TextView
@@ -297,7 +307,7 @@
                             android:layout_height="wrap_content"
                             android:text="โปรแกรมปัจจุบัน"
                             android:textColor="#E1BEE7"
-                            android:textSize="14sp"
+                            android:textSize="13sp"
                             android:letterSpacing="0.1" />
 
                         <!-- ชื่อโปรแกรม -->
@@ -308,16 +318,16 @@
                             android:layout_marginTop="8dp"
                             android:text="5km-sub25"
                             android:textColor="@color/white"
-                            android:textSize="32sp"
+                            android:textSize="30sp"
                             android:textStyle="bold"
-                            android:letterSpacing="0.05" />
+                            android:letterSpacing="0.03" />
 
                         <View
-                            android:layout_width="60dp"
+                            android:layout_width="50dp"
                             android:layout_height="3dp"
                             android:layout_marginTop="12dp"
                             android:background="@color/white"
-                            android:alpha="0.5" />
+                            android:alpha="0.6" />
                     </LinearLayout>
 
                     <!-- Exit Button -->
@@ -336,7 +346,7 @@
                             android:focusable="true"
                             android:foreground="?android:attr/selectableItemBackground"
                             app:cardBackgroundColor="#FFEBEE"
-                            app:cardCornerRadius="12dp"
+                            app:cardCornerRadius="14dp"
                             app:cardElevation="0dp">
 
                             <LinearLayout
@@ -344,21 +354,21 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
                                 android:gravity="center"
-                                android:padding="14dp">
+                                android:padding="16dp">
 
                                 <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
                                     android:src="@drawable/ic_bolt"
-                                    app:tint="#D32F2F" />
+                                    app:tint="#E53935" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
+                                    android:layout_marginStart="10dp"
                                     android:text="ออกจากตารางซ้อม"
-                                    android:textColor="#D32F2F"
-                                    android:textSize="16sp"
+                                    android:textColor="#E53935"
+                                    android:textSize="15sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
@@ -371,12 +381,13 @@
                 android:id="@+id/subProgramCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="6dp">
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -388,7 +399,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="@drawable/gradient_header_bg"
+                        android:background="@drawable/gradient_card_header"
                         android:padding="20dp">
 
                         <LinearLayout
@@ -399,10 +410,10 @@
 
                             <!-- Icon Container with Circle Background -->
                             <androidx.cardview.widget.CardView
-                                android:layout_width="52dp"
-                                android:layout_height="52dp"
-                                app:cardCornerRadius="26dp"
-                                app:cardElevation="0dp"
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                app:cardCornerRadius="28dp"
+                                app:cardElevation="4dp"
                                 android:backgroundTint="@color/white">
 
                                 <ImageView
@@ -428,7 +439,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="ตารางการฝึกซ้อม"
                                     android:textColor="#E1BEE7"
-                                    android:textSize="13sp"
+                                    android:textSize="12sp"
                                     android:letterSpacing="0.05" />
 
                                 <TextView
@@ -438,7 +449,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="โปรแกรมย่อยอื่นๆ"
                                     android:textColor="@color/white"
-                                    android:textSize="22sp"
+                                    android:textSize="20sp"
                                     android:textStyle="bold"
                                     android:maxLines="2"
                                     android:ellipsize="end"/>
@@ -447,8 +458,8 @@
 
                             <!-- Arrow Icon -->
                             <ImageView
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
                                 android:src="@drawable/baseline_arrow_forward_ios_24"
                                 app:tint="@color/white"
                                 android:contentDescription="Arrow icon"/>
@@ -483,7 +494,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="รายละเอียดการซ้อม"
-                                android:textColor="@color/black"
+                                android:textColor="#212121"
                                 android:textSize="16sp"
                                 android:textStyle="bold"/>
 
@@ -518,9 +529,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -531,16 +542,16 @@
                 android:layout_marginBottom="8dp">
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    app:cardCornerRadius="20dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="0dp"
                     android:backgroundTint="#FFF9C4">
 
                     <ImageView
                         android:id="@+id/imageView8"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_gravity="center"
                         android:src="@android:drawable/btn_star_big_on"
                         app:tint="#FFA000" />
@@ -553,28 +564,28 @@
                     android:layout_weight="1"
                     android:paddingStart="16dp"
                     android:text="ฟีเจอร์เสริม"
-                    android:textColor="@color/black"
-                    android:textSize="24sp"
+                    android:textColor="#212121"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="56dp"
+                android:layout_marginStart="64dp"
                 android:layout_marginTop="4dp"
                 android:text="เครื่องมือและความรู้เพิ่มเติมเพื่อการวิ่งที่ดีขึ้น"
-                android:textColor="@color/grey_text"
-                android:textSize="16sp"
-                android:lineSpacingExtra="4dp" />
+                android:textColor="#757575"
+                android:textSize="15sp"
+                android:lineSpacingExtra="3dp" />
         </LinearLayout>
 
         <!-- ================= Feature Cards ================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:layout_marginTop="20dp"
             android:baselineAligned="false"
             android:orientation="horizontal">
@@ -584,13 +595,14 @@
                 android:id="@+id/startDrill"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="10dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -600,15 +612,15 @@
                     android:background="@color/white">
 
                     <androidx.cardview.widget.CardView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        app:cardCornerRadius="25dp"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        app:cardCornerRadius="28dp"
                         app:cardElevation="0dp"
                         android:backgroundTint="#E3F2FD">
 
                         <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_walk"
                             app:tint="#1976D2" />
@@ -619,8 +631,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="การดริลเพื่อท่าทางถูกต้อง"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
+                        android:textColor="#212121"
+                        android:textSize="17sp"
                         android:textStyle="bold"
                         android:lineSpacingExtra="2dp" />
 
@@ -629,8 +641,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="ปรับปรุงท่าวิ่งให้มีประสิทธิภาพและลดการบาดเจ็บ"
-                        android:textColor="@color/grey_text"
-                        android:textSize="14sp"
+                        android:textColor="#757575"
+                        android:textSize="13sp"
                         android:lineSpacingExtra="3dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -640,13 +652,14 @@
                 android:id="@+id/trackProgress"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -656,15 +669,15 @@
                     android:background="@color/white">
 
                     <androidx.cardview.widget.CardView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        app:cardCornerRadius="25dp"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        app:cardCornerRadius="28dp"
                         app:cardElevation="0dp"
                         android:backgroundTint="#F3E5F5">
 
                         <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_grap"
                             app:tint="@color/purple" />
@@ -675,8 +688,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="ติดตามความก้าวหน้า"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
+                        android:textColor="#212121"
+                        android:textSize="17sp"
                         android:textStyle="bold"
                         android:lineSpacingExtra="2dp" />
 
@@ -685,8 +698,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="สถิติและกราฟแสดงพัฒนาการของคุณ"
-                        android:textColor="@color/grey_text"
-                        android:textSize="14sp"
+                        android:textColor="#757575"
+                        android:textSize="13sp"
                         android:lineSpacingExtra="3dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

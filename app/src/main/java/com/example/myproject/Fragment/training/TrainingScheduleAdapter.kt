@@ -11,6 +11,7 @@ import com.example.myproject.R
 import com.example.myproject.data.training.TrainingModel
 
 class TrainingScheduleAdapter(
+    private val isViewOnlyMode: Boolean = false, // ✅ เพิ่มพารามิเตอร์สำหรับโหมด View Only
     private val onStartWorkout: (TrainingModel, Int, Int) -> Unit
 ) : RecyclerView.Adapter<TrainingScheduleAdapter.TrainingViewHolder>() {
 
@@ -65,57 +66,75 @@ class TrainingScheduleAdapter(
             tvDescription.text = trainingDay.description
             tvType.text = trainingDay.type
 
-            // ⭐ ตรวจสอบสถานะ 4 แบบ
-            when {
-                trainingDay.isCompleted -> {
-                    // ✅ ทำแล้ว
-                    itemView.alpha = 0.6f
-                    tvDay.text = "✅"
-                    btnStartWorkout.visibility = View.GONE
-                    itemView.setBackgroundColor(
-                        ContextCompat.getColor(itemView.context, android.R.color.transparent)
-                    )
-                }
-                trainingDay.isMissed -> {
-                    // ❌ ขาดซ้อม
-                    itemView.alpha = 0.6f
-                    tvDay.text = "❌"
-                    btnStartWorkout.visibility = View.GONE
-                    itemView.setBackgroundColor(
-                        ContextCompat.getColor(itemView.context, R.color.light_red)
-                    )
-                }
-                trainingDay.type.equals("Rest Day", ignoreCase = true) -> {
-                    // 😴 วันพัก - ไม่มีปุ่มบันทึก
-                    itemView.alpha = 1.0f
-                    tvDay.text = dayNumber.toString()
-                    btnStartWorkout.visibility = View.GONE
-                    itemView.setBackgroundColor(
-                        ContextCompat.getColor(itemView.context, android.R.color.transparent)
-                    )
-                }
-                else -> {
-                    // ⏳ รอทำ
-                    itemView.alpha = 1.0f
-                    tvDay.text = dayNumber.toString()
-                    btnStartWorkout.visibility = View.VISIBLE
-                    itemView.setBackgroundColor(
-                        ContextCompat.getColor(itemView.context, android.R.color.transparent)
-                    )
+            // ✅ ถ้าเป็นโหมด View Only (โปรแกรมมือใหม่)
+            if (isViewOnlyMode) {
+                // ซ่อนปุ่มบันทึกทั้งหมด
+                btnStartWorkout.visibility = View.GONE
+
+                // แสดงเฉพาะข้อมูล ไม่มีสถานะ ✅ หรือ ❌
+                itemView.alpha = 1.0f
+                tvDay.text = dayNumber.toString()
+
+                // พื้นหลังสีปกติ
+                itemView.setBackgroundColor(
+                    ContextCompat.getColor(itemView.context, android.R.color.transparent)
+                )
+
+            } else {
+                // โหมดปกติ (โปรแกรม 5K) - แสดงสถานะ 4 แบบ
+                when {
+                    trainingDay.isCompleted -> {
+                        // ทำแล้ว
+                        itemView.alpha = 0.6f
+                        tvDay.text = "✅"
+                        btnStartWorkout.visibility = View.GONE
+                        itemView.setBackgroundColor(
+                            ContextCompat.getColor(itemView.context, android.R.color.transparent)
+                        )
+                    }
+                    trainingDay.isMissed -> {
+                        // ขาดซ้อม
+                        itemView.alpha = 0.6f
+                        tvDay.text = "❌"
+                        btnStartWorkout.visibility = View.GONE
+                        itemView.setBackgroundColor(
+                            ContextCompat.getColor(itemView.context, R.color.light_red)
+                        )
+                    }
+                    trainingDay.type.equals("Rest Day", ignoreCase = true) -> {
+                        // วันพัก - ไม่มีปุ่มบันทึก
+                        itemView.alpha = 1.0f
+                        tvDay.text = dayNumber.toString()
+                        btnStartWorkout.visibility = View.GONE
+                        itemView.setBackgroundColor(
+                            ContextCompat.getColor(itemView.context, android.R.color.transparent)
+                        )
+                    }
+                    else -> {
+                        // รอทำ
+                        itemView.alpha = 1.0f
+                        tvDay.text = dayNumber.toString()
+                        btnStartWorkout.visibility = View.VISIBLE
+                        itemView.setBackgroundColor(
+                            ContextCompat.getColor(itemView.context, android.R.color.transparent)
+                        )
+                    }
                 }
             }
 
             // ตั้งสีพื้นหลังตามประเภท
             val typeColor = when (trainingDay.type.lowercase()) {
-                "easy" -> R.color.accent_green
+                "easy", "easy run" -> R.color.accent_green
                 "interval" -> R.color.accent_red
                 "threshold" -> R.color.accent_orange
-                "rest day" -> R.color.light_purple
+                "rest day", "rest" -> R.color.light_purple
                 "long run" -> R.color.accent_blue
+                "easy run&repetition", "easy&repetition" -> R.color.yellow
                 else -> R.color.grey_text
             }
             tvType.setBackgroundColor(ContextCompat.getColor(itemView.context, typeColor))
 
+            // แสดงเป้าหมาย Pace
             if (trainingDay.pace.isNotEmpty()) {
                 tvPace.text = "เป้าหมาย ${trainingDay.pace}"
                 tvPace.visibility = View.VISIBLE
@@ -123,9 +142,11 @@ class TrainingScheduleAdapter(
                 tvPace.visibility = View.GONE
             }
 
-            // ปุ่มเริ่มบันทึก
-            btnStartWorkout.setOnClickListener {
-                onStartWorkout(trainingDay, currentWeek, dayNumber)
+            // ✅ ปุ่มเริ่มบันทึก (ทำงานเฉพาะโหมดปกติ)
+            if (!isViewOnlyMode) {
+                btnStartWorkout.setOnClickListener {
+                    onStartWorkout(trainingDay, currentWeek, dayNumber)
+                }
             }
         }
     }

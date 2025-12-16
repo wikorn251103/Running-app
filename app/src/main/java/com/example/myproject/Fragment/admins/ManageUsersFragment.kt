@@ -112,7 +112,7 @@ class ManageUsersFragment : Fragment() {
     }
 
     /**
-     * โหลดรายการผู้ใช้ทั้งหมด
+     * โหลดรายการผู้ใช้ทั้งหมด - แก้ไขให้ดึงข้อมูลจาก Athletes ที่ถูกต้อง
      */
     private fun loadUsers() {
         binding.progressBar.visibility = View.VISIBLE
@@ -144,6 +144,19 @@ class ManageUsersFragment : Fragment() {
                             val email = userDoc.getString("email") ?: ""
                             val profileImageUrl = userDoc.getString("profileImageUrl") ?: ""
 
+                            // ✅ FIX: ดึงข้อมูลโปรแกรมจาก Athletes collection ที่ถูกต้อง
+                            val currentProgramId = athleteDoc.getString("programId")
+                                ?: athleteDoc.getString("currentProgramId")
+                                ?: ""
+
+                            val programDisplayName = athleteDoc.getString("programName")
+                                ?: athleteDoc.getString("programDisplayName")
+                                ?: ""
+
+                            val isActive = athleteDoc.getBoolean("isActive")
+                                ?: athleteDoc.getBoolean("hasActiveProgram")
+                                ?: !currentProgramId.isEmpty()
+
                             val user = UserModel(
                                 userId = userId,
                                 name = name,
@@ -151,15 +164,19 @@ class ManageUsersFragment : Fragment() {
                                 profileImageUrl = profileImageUrl,
                                 role = "athlete",
                                 createdAt = athleteDoc.getLong("createdAt") ?: 0,
-                                hasActiveProgram = athleteDoc.getBoolean("isActive") ?: false,
-                                currentProgramId = athleteDoc.getString("currentProgramId") ?: "",
-                                programDisplayName = athleteDoc.getString("programDisplayName") ?: "-"
+                                hasActiveProgram = isActive,
+                                currentProgramId = currentProgramId,
+                                programDisplayName = if (programDisplayName.isEmpty() && currentProgramId.isNotEmpty())
+                                    "มีโปรแกรม" else programDisplayName
                             )
 
                             usersList.add(user)
+
+                            // 🔍 Debug log
+                            Log.d(TAG, "User: ${user.name}, ProgramID: ${user.currentProgramId}, Active: ${user.hasActiveProgram}")
                         }
-                        .addOnFailureListener {
-                            Log.e(TAG, "Failed to fetch user info for $userId")
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Failed to fetch user info for $userId", e)
                         }
                         .addOnCompleteListener {
                             processed++
@@ -218,13 +235,17 @@ class ManageUsersFragment : Fragment() {
     }
 
     /**
-     * ไปหน้าดูและแก้ไขตารางซ้อมของผู้ใช้
+     * ✅ FIX: ไปหน้าดูและแก้ไขตารางซ้อมของผู้ใช้
      */
     private fun navigateToUserTraining(user: UserModel) {
-        if (user.currentProgramId.isEmpty()) {
-            Toast.makeText(requireContext(), "${user.name} ยังไม่มีโปรแกรม", Toast.LENGTH_SHORT).show()
+        if (user.currentProgramId.isEmpty() || user.currentProgramId.isBlank()) {
+            Toast.makeText(requireContext(), "${user.name} ยังไม่มีโปรแกรมการซ้อม", Toast.LENGTH_SHORT).show()
+            Log.w(TAG, "User ${user.userId} has no program ID")
             return
         }
+
+        // ✅ ข้ามการตรวจสอบและเปิดหน้าแก้ไขโดยตรง (เพราะข้อมูลอยู่ใน Athletes/{userId})
+        Log.d(TAG, "✅ Opening training detail for user: ${user.name}, programId: ${user.currentProgramId}")
 
         val fragment = UserTrainingDetailFragment.newInstance(
             userId = user.userId,
@@ -244,7 +265,8 @@ class ManageUsersFragment : Fragment() {
         🏷️ บทบาท: ${user.role}
         📅 สมัครเมื่อ: ${formatDate(user.createdAt)}
         🏃 สถานะ: ${if (user.hasActiveProgram) "กำลังใช้โปรแกรม" else "ไม่มีโปรแกรม"}
-        📝 โปรแกรม: ${user.programDisplayName.ifEmpty { "ไม่มี" }}
+        📝 โปรแกรม: ${if (user.programDisplayName.isEmpty()) "ไม่มี" else user.programDisplayName}
+        🔑 Program ID: ${if (user.currentProgramId.isEmpty()) "ไม่มี" else user.currentProgramId}
     """.trimIndent()
 
         AlertDialog.Builder(requireContext())
@@ -256,8 +278,9 @@ class ManageUsersFragment : Fragment() {
             }
             .show()
     }
+
     /**
-     * Toggle สถานะ Active/Inactive
+     * ✅ FIX: Toggle สถานะ Active/Inactive - อัปเดตทั้ง 2 collections
      */
     private fun toggleUserActive(user: UserModel) {
         val newStatus = !user.hasActiveProgram
@@ -267,15 +290,19 @@ class ManageUsersFragment : Fragment() {
             .setTitle("$action ผู้ใช้")
             .setMessage("คุณต้องการ$action ${user.name} หรือไม่?")
             .setPositiveButton("ยืนยัน") { _, _ ->
-                firestore.collection("users")
+                binding.progressBar.visibility = View.VISIBLE
+
+                // อัปเดต Athletes collection
+                firestore.collection("Athletes")
                     .document(user.userId)
-                    .update("hasActiveProgram", newStatus)
+                    .update("isActive", newStatus)
                     .addOnSuccessListener {
                         Toast.makeText(requireContext(), "${action}สำเร็จ", Toast.LENGTH_SHORT).show()
                         loadUsers()
                     }
                     .addOnFailureListener { e ->
                         Log.e(TAG, "Failed to toggle user status", e)
+                        binding.progressBar.visibility = View.GONE
                         Toast.makeText(requireContext(), "เกิดข้อผิดพลาด", Toast.LENGTH_SHORT).show()
                     }
             }
@@ -303,27 +330,27 @@ class ManageUsersFragment : Fragment() {
     private fun deleteUser(user: UserModel) {
         binding.progressBar.visibility = View.VISIBLE
 
-        // ลบจาก users collection
-        firestore.collection("users")
+        // ลบจาก Athletes collection ก่อน
+        firestore.collection("Athletes")
             .document(user.userId)
             .delete()
             .addOnSuccessListener {
-                // ลบจาก Athletes collection (ถ้ามี)
-                firestore.collection("Athletes")
+                // ลบจาก users collection
+                firestore.collection("users")
                     .document(user.userId)
                     .delete()
                     .addOnSuccessListener {
                         Toast.makeText(requireContext(), "ลบผู้ใช้สำเร็จ", Toast.LENGTH_SHORT).show()
                         loadUsers()
                     }
-                    .addOnFailureListener {
-                        // ไม่ต้องสนใจถ้าไม่มีใน Athletes
-                        Toast.makeText(requireContext(), "ลบผู้ใช้สำเร็จ", Toast.LENGTH_SHORT).show()
-                        loadUsers()
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "Failed to delete from users", e)
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(requireContext(), "ลบไม่สมบูรณ์", Toast.LENGTH_SHORT).show()
                     }
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Failed to delete user", e)
+                Log.e(TAG, "Failed to delete from Athletes", e)
                 binding.progressBar.visibility = View.GONE
                 Toast.makeText(requireContext(), "ไม่สามารถลบได้", Toast.LENGTH_SHORT).show()
             }

@@ -23,6 +23,10 @@ class MainActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val sharedPref by lazy { getSharedPreferences("running_app_prefs", Context.MODE_PRIVATE) }
 
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -101,6 +105,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
+     * ✅ แสดงปุ่มเมนูด้านล่าง (เรียกผ่าน MainFragment) - ป้องกัน crash
+     */
+    fun showBottomNavigation() {
+        try {
+            val mainFragment = supportFragmentManager.findFragmentByTag(MainFragment.TAG) as? MainFragment
+            if (mainFragment != null && mainFragment.isAdded) {
+                mainFragment.setBottomNavVisible(true)
+                Log.d(TAG, "✅ Bottom Navigation shown")
+            } else {
+                Log.w(TAG, "⚠️ MainFragment not found or not added yet")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error showing bottom navigation: ${e.message}", e)
+        }
+    }
+
+    /**
+     * ✅ ซ่อนปุ่มเมนูด้านล่าง (เรียกผ่าน MainFragment) - ป้องกัน crash
+     */
+    fun hideBottomNavigation() {
+        try {
+            val mainFragment = supportFragmentManager.findFragmentByTag(MainFragment.TAG) as? MainFragment
+            if (mainFragment != null && mainFragment.isAdded) {
+                mainFragment.setBottomNavVisible(false)
+                Log.d(TAG, "❌ Bottom Navigation hidden")
+            } else {
+                Log.w(TAG, "⚠️ MainFragment not found or not added yet")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error hiding bottom navigation: ${e.message}", e)
+        }
+    }
+
+    /**
      * 🕐 ตั้งค่า WorkManager ให้ทำงานทุกวันเวลา 00:01 น.
      */
     private fun scheduleDailyMissedWorkoutCheck() {
@@ -124,7 +162,7 @@ class MainActivity : AppCompatActivity() {
             workRequest
         )
 
-        Log.d("MainActivity", "✅ WorkManager scheduled for daily missed workout check")
+        Log.d(TAG, "✅ WorkManager scheduled for daily missed workout check")
     }
 
     /**
@@ -141,7 +179,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val delay = midnight.timeInMillis - now.timeInMillis
-        Log.d("MainActivity", "⏰ Next check will be in ${delay / 1000 / 60 / 60} hours")
+        Log.d(TAG, "⏰ Next check will be in ${delay / 1000 / 60 / 60} hours")
 
         return delay
     }

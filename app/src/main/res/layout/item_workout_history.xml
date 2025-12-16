@@ -56,7 +56,7 @@
                 android:textColor="@color/white"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="6dp"
-                android:background="@drawable/btn_bg" />
+                android:background="@drawable/txt_bg" />
 
             <TextView
                 android:id="@+id/tvFeeling"

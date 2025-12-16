@@ -69,4 +69,8 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.9.0")
     //Notification
     implementation("androidx.core:core-ktx:1.12.0")
+
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
+    //MPAndroidChart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }
