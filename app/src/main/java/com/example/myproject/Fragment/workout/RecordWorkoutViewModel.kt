@@ -78,13 +78,13 @@ class RecordWorkoutViewModel : ViewModel() {
                     isCompleted = true
                 )
 
-                // ⭐ บันทึก WorkoutLog
+                // บันทึก WorkoutLog
                 val saveResult = repository.saveWorkoutLog(workoutLog)
 
                 if (saveResult.isSuccess) {
                     Log.d(TAG, "✅ Workout log saved successfully")
 
-                    // ⭐ อัปเดท isCompleted = true ใน Athletes
+                    // อัปเดท isCompleted = true ใน Athletes
                     val markResult = repository.markDayAsCompleted(weekNumber, dayNumber)
 
                     if (markResult.isSuccess) {

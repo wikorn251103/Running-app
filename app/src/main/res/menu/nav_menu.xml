@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
         android:id="@+id/bottom_home"
         android:title="หน้าแรก"
-        android:icon="@drawable/ic_home" />
+        android:icon="@drawable/ic_home"/>
+
     <item
         android:id="@+id/bottom_calendar"
         android:title="ตารางซ้อม"
         android:icon="@drawable/ic_calendar"/>
+
     <item
         android:id="@+id/bottom_article"
         android:title="บทความ"
         android:icon="@drawable/ic_article"/>
+
     <item
         android:id="@+id/bottom_profile"
         android:title="โปรไฟล์"
-        android:iconTint="@color/black"
         android:icon="@drawable/ic_account"/>
 
 </menu>

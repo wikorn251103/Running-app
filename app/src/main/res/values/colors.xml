@@ -10,6 +10,10 @@
     <color name="text_blue_900">#1e3a8a</color>
     <color name="text_blue_800">#1e40af </color>
     <color name="green">#66BB6A</color>
+    <color name="darkBlue">#2d3892</color>
+    <color name="colorBackground">#fafafa</color>
+    <color name="grayText">#6C757D</color>
+    <color name="primaryBlue">#464479</color>
 
     <!-- Primary Colors -->
     <color name="primary_color">#8B5CF6</color>

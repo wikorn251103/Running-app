@@ -4,18 +4,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA">
+    android:background="#F5F7FA"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="100dp">
 
         <!-- Header Section with Gradient Background -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="330dp"
-            android:background="@color/purple"
+            android:background="@color/darkBlue"
             android:paddingTop="40dp"
             android:paddingBottom="50dp">
 
@@ -277,17 +279,16 @@
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 android:layout_marginBottom="32dp"
-                android:backgroundTint="#FF3B30">
+                android:backgroundTint="@color/darkBlue">
 
                 <Button
                     android:id="@+id/btnLogout"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:text="ออกจากระบบ"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#ffff"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:background="@drawable/txt_bg"
                     style="?android:attr/borderlessButtonStyle"/>
             </androidx.cardview.widget.CardView>
 

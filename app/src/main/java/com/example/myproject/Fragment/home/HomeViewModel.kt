@@ -26,6 +26,15 @@ class HomeViewModel : ViewModel() {
     }
 
     /**
+     * ✅ Clear cache และโหลดข้อมูลใหม่ (สำหรับ refresh)
+     */
+    fun refreshTrainingPlan(planId: String) {
+        Log.d(TAG, "🔄 Refreshing training plan - clearing cache first")
+        _trainingPlan.value = emptyMap() // ✅ Clear cache
+        loadTrainingPlanFromAthlete(planId)
+    }
+
+    /**
      * ดึงข้อมูลจาก Athletes/{userId}
      */
     fun loadTrainingPlanFromAthlete(planId: String) {
@@ -86,6 +95,15 @@ class HomeViewModel : ViewModel() {
     }
 
     fun clearError() {
+        _error.value = null
+    }
+
+    /**
+     * ✅ Clear ข้อมูลทั้งหมด (เมื่อออกจากโปรแกรม)
+     */
+    fun clearTrainingPlan() {
+        Log.d(TAG, "🗑️ Clearing training plan cache")
+        _trainingPlan.value = emptyMap()
         _error.value = null
     }
 }

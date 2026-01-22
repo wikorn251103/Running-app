@@ -84,7 +84,7 @@ class TrainingScheduleAdapter(
                 // โหมดปกติ (โปรแกรม 5K) - แสดงสถานะ 4 แบบ
                 when {
                     trainingDay.isCompleted -> {
-                        // ทำแล้ว
+                        // ทำแล้ว ✅
                         itemView.alpha = 0.6f
                         tvDay.text = "✅"
                         btnStartWorkout.visibility = View.GONE
@@ -93,7 +93,7 @@ class TrainingScheduleAdapter(
                         )
                     }
                     trainingDay.isMissed -> {
-                        // ขาดซ้อม
+                        // ขาดซ้อม ❌
                         itemView.alpha = 0.6f
                         tvDay.text = "❌"
                         btnStartWorkout.visibility = View.GONE
@@ -101,8 +101,9 @@ class TrainingScheduleAdapter(
                             ContextCompat.getColor(itemView.context, R.color.light_red)
                         )
                     }
-                    trainingDay.type.equals("Rest Day", ignoreCase = true) -> {
-                        // วันพัก - ไม่มีปุ่มบันทึก
+                    trainingDay.type.equals("Rest Day", ignoreCase = true) ||
+                            trainingDay.type.equals("Rest", ignoreCase = true) -> {
+                        // ✅ วันพัก - ซ่อนปุ่มบันทึก
                         itemView.alpha = 1.0f
                         tvDay.text = dayNumber.toString()
                         btnStartWorkout.visibility = View.GONE
@@ -111,7 +112,7 @@ class TrainingScheduleAdapter(
                         )
                     }
                     else -> {
-                        // รอทำ
+                        // รอทำ - แสดงปุ่มบันทึก
                         itemView.alpha = 1.0f
                         tvDay.text = dayNumber.toString()
                         btnStartWorkout.visibility = View.VISIBLE
@@ -124,8 +125,8 @@ class TrainingScheduleAdapter(
 
             // ตั้งสีพื้นหลังตามประเภท
             val typeColor = when (trainingDay.type.lowercase()) {
-                "easy", "easy run" -> R.color.accent_green
-                "interval" -> R.color.accent_red
+                "easy", "easy run","recovery run", "recovery" -> R.color.accent_green
+                "interval" , "race day"-> R.color.accent_red
                 "threshold" -> R.color.accent_orange
                 "rest day", "rest" -> R.color.light_purple
                 "long run" -> R.color.accent_blue
@@ -142,8 +143,8 @@ class TrainingScheduleAdapter(
                 tvPace.visibility = View.GONE
             }
 
-            // ✅ ปุ่มเริ่มบันทึก (ทำงานเฉพาะโหมดปกติ)
-            if (!isViewOnlyMode) {
+            // ✅ ปุ่มเริ่มบันทึก (ทำงานเฉพาะโหมดปกติ และไม่ใช่ Rest Day)
+            if (!isViewOnlyMode && btnStartWorkout.visibility == View.VISIBLE) {
                 btnStartWorkout.setOnClickListener {
                     onStartWorkout(trainingDay, currentWeek, dayNumber)
                 }

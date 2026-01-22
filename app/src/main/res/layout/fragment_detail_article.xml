@@ -4,152 +4,142 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white"
+    android:background="#F8F9FA"
     tools:context=".Fragment.article.detail.DetailArticleFragment">
 
-    <!-- Status Bar -->
     <View
+        android:id="@+id/statusBarBackground"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/purple"
+        android:background="@color/darkBlue"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/headerLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toTopOf="@+id/guidelineHeader" />
 
-    <!-- Headern -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="90dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingTop="30dp"
-        android:paddingBottom="16dp"
-        android:paddingHorizontal="20dp"
-        android:elevation="8dp"
+        android:layout_height="110dp"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="10dp"
+        android:paddingTop="48dp"
+        android:background="@color/darkBlue"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintBottom_toTopOf="@+id/guidelineHeader">
 
         <ImageView
             android:id="@+id/backArrow"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:background="@drawable/back_btn_bg"
             android:src="@drawable/ic_arrow_back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.7"
             app:tint="@color/white" />
 
         <TextView
             android:id="@+id/textView12"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="20dp"
             android:text="บทความวิ่ง"
             android:textColor="@color/white"
-            android:textSize="22sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-             />
+            app:layout_constraintBottom_toBottomOf="@+id/backArrow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/backArrow" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Scrollable -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        android:scrollbars="none"
         android:overScrollMode="never"
-        app:layout_constraintTop_toBottomOf="@+id/headerLayout"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/headerLayout">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="32dp">
+            android:paddingBottom="40dp">
 
-            <!-- Image Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="240dp"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="20dp"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="12dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardElevation="10dp"
                 app:strokeWidth="0dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imageView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <!-- Image with Rounded Corners -->
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/imageView"
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/ic_launcher_background"
-                        app:shapeAppearanceOverlay="@style/TopRoundedImageView"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_launcher_background" />
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Content -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="8dp"
+                android:layout_marginTop="-30dp"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="6dp"
                 app:cardBackgroundColor="@color/white"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/purple_200">
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="28dp">
 
-                    <!-- Title -->
                     <TextView
                         android:id="@+id/tvTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="วิ่ง...บทสนทนากับตัวเองบนเส้นทางที่เรียบง่าย"
-                        android:textSize="20sp"
+                        android:textSize="24sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_primary"
-                        android:lineSpacingMultiplier="1.1"
-                         />
+                        android:layout_marginTop="12dp"
+                        android:textColor="@color/primaryBlue"
+                        android:lineSpacingMultiplier="1.2"
+                        android:letterSpacing="0.01" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
+                    <View
+                        android:layout_width="60dp"
+                        android:layout_height="4dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="24dp"
+                        android:background="@color/purple_200" />
 
-                    </LinearLayout>
-
-                    <!-- Article Content -->
                     <TextView
                         android:id="@+id/tvDescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="หลายคนเริ่มวิ่งเพราะอยากลดน้ำหนัก บางคนอยากสุขภาพดีขึ้น บางคนอยากพิสูจน์หาตัวตนที่หายไปในมาตรฐานสังคม แต่ไม่ว่าด้วยเหตุผลใดก็ตาม นักวิ่งทุกคนเมื่อปฏิบัติสม่ำเสมอแล้วจะพบสิ่งหนึ่ง คือ ความสุขที่ได้จากการก้าวเท้าไปข้างหน้า"
+                        android:text="หลายคนเริ่มวิ่งเพราะอยากลดน้ำหนัก..."
                         android:textSize="16sp"
-                        android:textColor="@color/text_primary"
-                        android:textAlignment="viewStart" />
+                        android:textColor="#2C2C2C"
+                        android:lineSpacingMultiplier="1.2"
+                        android:letterSpacing="0.02"
+                        android:justificationMode="inter_word"
+                        tools:targetApi="o" />
 
                 </LinearLayout>
 

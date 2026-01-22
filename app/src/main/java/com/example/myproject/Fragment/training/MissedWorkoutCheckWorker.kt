@@ -44,6 +44,7 @@ class MissedWorkoutCheckWorker(
 
     /**
      * เช็คขาดซ้อมทุกสัปดาห์ (1-4) และทุกวัน (1-7)
+     * ✅ ไม่มาร์ค Rest Day เป็น missed
      */
     private suspend fun checkAllMissedDays(userId: String) {
         val document = firestore.collection("Athletes")
@@ -112,11 +113,18 @@ class MissedWorkoutCheckWorker(
                     add(Calendar.DAY_OF_YEAR, ((week - 1) * 7) + (day - 1))
                 }
 
+                // ✅ ตรวจสอบว่าไม่ใช่ Rest Day หลายรูปแบบ
+                val isRestDay = type.equals("Rest Day", ignoreCase = true) ||
+                        type.equals("RestDay", ignoreCase = true) ||
+                        type.equals("Rest", ignoreCase = true) ||
+                        type.contains("พักผ่อน", ignoreCase = true) ||
+                        type.contains("พัก", ignoreCase = true)
+
                 // เงื่อนไข: วันที่ผ่านไปแล้ว + ไม่ได้ซ้อม + ยังไม่ถูก mark + ไม่ใช่ Rest Day
                 if (dayDate.before(today) &&
                     !isCompleted &&
                     !isMissed &&
-                    !type.equals("Rest Day", ignoreCase = true)) {
+                    !isRestDay) {
 
                     try {
                         // Mark as missed
@@ -132,12 +140,14 @@ class MissedWorkoutCheckWorker(
                     } catch (e: Exception) {
                         Log.e(TAG, "❌ Failed to mark week $week day $day as missed", e)
                     }
+                } else if (isRestDay) {
+                    Log.d(TAG, "😴 Skipped Rest Day: Week $week, Day $day")
                 }
             }
         }
 
         if (missedCount > 0) {
-            Log.d(TAG, "📊 Total missed workouts marked: $missedCount")
+            Log.d(TAG, "📊 Total missed workouts marked: $missedCount (Rest Days excluded)")
         } else {
             Log.d(TAG, "✅ No missed workouts found")
         }

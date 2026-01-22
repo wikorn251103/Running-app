@@ -13,4 +13,12 @@
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
 
+    <style name="BottomNavStyle" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:minHeight">56dp</item>
+        <item name="itemIconSize">24dp</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemPaddingTop">4dp</item>
+        <item name="itemPaddingBottom">4dp</item>
+    </style>
+
 </resources>

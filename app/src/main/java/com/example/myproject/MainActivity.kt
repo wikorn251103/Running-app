@@ -1,14 +1,18 @@
 package com.example.myproject
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.work.*
 import com.example.Fragment.loginandregister.SignInFragment
 import com.example.myproject.Fragment.workout.WorkoutScheduler
-import com.example.myproject.Fragment.admins.AdminDashboardFragment
 import com.example.myproject.Fragment.training.MissedWorkoutCheckWorker
 import com.example.myproject.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -31,6 +35,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // ✅ ตั้งค่า Status Bar ให้เป็นสีน้ำเงิน
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.darkBlue)
+
+        // ตั้งค่าไอคอนใน status bar ให้เป็นสีขาว (เพราะพื้นหลังเป็นสีน้ำเงินเข้ม)
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false // ใช้ไอคอนสีขาว
+        }
+
+        //  แก้ปัญหา UI ชน StatusBar ตรงนี้
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                systemBars.left,
+                0,  // ไม่ใส่ padding top เพราะต้องการให้ UI แสดงใต้ status bar
+                systemBars.right,
+                0   // เปลี่ยนจาก systemBars.bottom เป็น 0 เพื่อไม่ให้มี padding ด้านล่าง
+            )
+            insets
+        }
 
         auth = FirebaseAuth.getInstance()
 
@@ -70,7 +95,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun openCorrectFragment(role: String) {
         if (role == "admin") {
-            replaceFragment(AdminDashboardFragment(), addToBackStack = false, MainFragment.TAG)
+
         } else {
             replaceFragment(MainFragment.newInstance(), addToBackStack = false, MainFragment.TAG)
         }
@@ -135,6 +160,23 @@ class MainActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "❌ Error hiding bottom navigation: ${e.message}", e)
+        }
+    }
+
+    /**
+     * ✅ แสดง/ซ่อนปุ่มเมนูตารางซ้อม (เรียกจาก HomeFragment)
+     */
+    fun updateScheduleMenuVisibility(isVisible: Boolean) {
+        try {
+            val mainFragment = supportFragmentManager.findFragmentByTag(MainFragment.TAG) as? MainFragment
+            if (mainFragment != null && mainFragment.isAdded) {
+                mainFragment.updateScheduleMenuVisibility(isVisible)
+                Log.d(TAG, "📱 Schedule menu visibility updated: $isVisible")
+            } else {
+                Log.w(TAG, "⚠️ MainFragment not found or not added yet")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error updating schedule menu visibility: ${e.message}", e)
         }
     }
 

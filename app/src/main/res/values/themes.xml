@@ -2,16 +2,15 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.MyProject" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <item name="colorPrimary">@color/purple</item>
-        <item name="colorPrimaryVariant">@color/purple</item>
-        <item name="android:statusBarColor">@color/purple</item>
+
+            <item name="android:statusBarColor">@android:color/transparent</item>
 
 
-    </style>
+        </style>
 
-    <style name="Theme.MyProject" parent="Base.Theme.MyProject" />
-    
-    <style name="App.Custom" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">@color/yellow</item>
+     <style name="Theme.MyProject" parent="Base.Theme.MyProject" />
+
+     <style name="App.Custom" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+         <item name="android:color">@color/yellow</item>
     </style>
 </resources>

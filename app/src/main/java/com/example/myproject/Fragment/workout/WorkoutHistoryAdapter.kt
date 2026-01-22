@@ -67,11 +67,12 @@ class WorkoutHistoryAdapter(
 
             // ตั้งสีตามประเภท
             val typeColor = when (workoutLog.trainingType.lowercase()) {
-                "easy" -> R.color.accent_green
+                "easy", "easy run","recovery run","recovery" -> R.color.accent_green
                 "interval" -> R.color.accent_red
                 "threshold" -> R.color.accent_orange
-                "rest day" -> R.color.light_purple
+                "rest day", "rest" -> R.color.light_purple
                 "long run" -> R.color.accent_blue
+                "easy run&repetition", "easy&repetition" -> R.color.yellow
                 else -> R.color.grey_text
             }
             tvType.setBackgroundColor(ContextCompat.getColor(itemView.context, typeColor))

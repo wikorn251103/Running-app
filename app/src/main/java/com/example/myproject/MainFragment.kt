@@ -66,6 +66,29 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         }
     }
 
+    /**
+     * ✅ แสดง/ซ่อนปุ่มเมนูตารางซ้อม (เรียกจาก MainActivity <- HomeFragment)
+     */
+    fun updateScheduleMenuVisibility(isVisible: Boolean) {
+        try {
+            if (isAdded && view != null) {
+                val menu = binding.bottomNavigation.menu
+                val scheduleMenuItem = menu.findItem(R.id.bottom_calendar)
+
+                if (scheduleMenuItem != null) {
+                    scheduleMenuItem.isVisible = isVisible
+                    Log.d(TAG, "📱 Schedule menu item visibility: $isVisible")
+                } else {
+                    Log.w(TAG, "⚠️ Schedule menu item (bottom_calendar) not found")
+                }
+            } else {
+                Log.w(TAG, "⚠️ Fragment not attached or view is null")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error updating schedule menu visibility: ${e.message}", e)
+        }
+    }
+
     private fun replaceFragment(fragment: Fragment) {
         // ✅ ล้าง back stack เฉพาะเมื่อสลับเมนู
         childFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)

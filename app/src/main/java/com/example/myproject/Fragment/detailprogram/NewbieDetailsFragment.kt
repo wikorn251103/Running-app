@@ -9,13 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.example.myproject.Fragment.home.HomeFragment
-import com.example.myproject.MainActivity
-import com.example.myproject.MainFragment
 import com.example.myproject.databinding.FragmentNewbieDetailsBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.Calendar
 
 class NewbieDetailsFragment : Fragment() {
 
@@ -110,7 +106,7 @@ class NewbieDetailsFragment : Fragment() {
 
         AlertDialog.Builder(requireContext())
             .setTitle("คุณมีโปรแกรมอยู่แล้ว")
-            .setMessage("คุณต้องการเปลี่ยนไปใช้โปรแกรมมือใหม่หรือไม่?\n\nโปรแกรมเก่าจะถูกปิดและความก้าวหน้าจะถูกรีเซ็ต")
+            .setMessage("คุณต้องการเปลี่ยนไปใช้โปรแกรมมือใหม่หรือไม่?\n\nโปรแกรมเก่าจะถูกปิดและความก้าวหน้าจะถูกรีเซ็ต\n\n⚠️ หมายเหตุ: โปรแกรมมือใหม่เป็นโปรแกรมดูอย่างเดียว ไม่สามารถบันทึกการซ้อมได้")
             .setPositiveButton("เปลี่ยนโปรแกรม") { _, _ ->
                 startCreatingProgram()
             }
@@ -150,7 +146,7 @@ class NewbieDetailsFragment : Fragment() {
                     trainingData["programDisplayName"] = DISPLAY_NAME
                     trainingData["subProgramName"] = SUB_PROGRAM_NAME
                     trainingData["isActive"] = true
-                    trainingData["isViewOnly"] = true // ✅ โปรแกรมมือใหม่ = ดูได้อย่างเดียว
+                    trainingData["isViewOnly"] = true // ✅ โปรแกรมมือใหม่ = ดูได้อย่างเดียว ไม่บันทึก
                     trainingData["startDate"] = currentTime
                     trainingData["createdAt"] = currentTime
                     trainingData["updatedAt"] = currentTime
@@ -159,25 +155,8 @@ class NewbieDetailsFragment : Fragment() {
                     trainingData.remove("currentProgramId")
                     trainingData.remove("lastUpdated")
 
-                    // รีเซ็ต isCompleted และ isMissed ทุกวัน
-                    val weeks = trainingData["weeks"] as? Map<*, *>
-                    if (weeks != null) {
-                        val updatedWeeks = mutableMapOf<String, Any>()
-                        weeks.forEach { (weekKey, weekData) ->
-                            val days = (weekData as? Map<*, *>) ?: emptyMap<String, Any>()
-                            val updatedDays = mutableMapOf<String, Any>()
-
-                            days.forEach { (dayKey, dayData) ->
-                                val dayMap = (dayData as? Map<*, *>)?.toMutableMap() ?: mutableMapOf()
-                                dayMap["isCompleted"] = false
-                                dayMap["isMissed"] = false
-                                updatedDays[dayKey.toString()] = dayMap
-                            }
-
-                            updatedWeeks[weekKey.toString()] = updatedDays
-                        }
-                        trainingData["weeks"] = updatedWeeks
-                    }
+                    // ✅ รีเซ็ต isCompleted และ isMissed ทุกวัน (เพื่อให้เป็นตารางสะอาด)
+                    resetWeeksDaysStatus(trainingData)
 
                     // บันทึกลง Firebase Athletes collection
                     saveToAthletesCollection(userId, trainingData, currentTime)
@@ -194,6 +173,57 @@ class NewbieDetailsFragment : Fragment() {
                 binding.backBtnRookie.text = "เริ่มโปรแกรม"
                 Toast.makeText(requireContext(), "เกิดข้อผิดพลาด: ${e.message}", Toast.LENGTH_LONG).show()
             }
+    }
+
+    /**
+     *  รีเซ็ต isCompleted และ isMissed ของทุกวันในโปรแกรม
+     * (ทำให้ตารางสะอาด เพื่อให้ดูง่าย แต่ไม่มีการบันทึกการซ้อมจริง)
+     */
+    private fun resetWeeksDaysStatus(trainingData: MutableMap<String, Any>) {
+        try {
+            // ✅ ลองทั้ง 2 รูปแบบ: "weeks" object หรือ "week_1", "week_2" แยกกัน
+            val weeksData = trainingData["weeks"] as? Map<*, *>
+
+            if (weeksData != null) {
+                // ✅ กรณีมี "weeks" object
+                val updatedWeeks = mutableMapOf<String, Any>()
+                weeksData.forEach { (weekKey, weekValue) ->
+                    val weekData = weekValue as? Map<*, *> ?: return@forEach
+                    val updatedDays = mutableMapOf<String, Any>()
+
+                    weekData.forEach { (dayKey, dayValue) ->
+                        val dayMap = (dayValue as? Map<*, *>)?.toMutableMap() ?: mutableMapOf()
+                        dayMap["isCompleted"] = false
+                        dayMap["isMissed"] = false
+                        updatedDays[dayKey.toString()] = dayMap
+                    }
+
+                    updatedWeeks[weekKey.toString()] = updatedDays
+                }
+                trainingData["weeks"] = updatedWeeks
+                Log.d(TAG, "✅ Reset status using 'weeks' structure")
+            } else {
+                // ✅ กรณีใช้ "week_1", "week_2", "week_3", "week_4" แยกกัน
+                for (weekNum in 1..4) {
+                    val weekKey = "week_$weekNum"
+                    val weekData = trainingData[weekKey] as? Map<*, *>
+
+                    if (weekData != null) {
+                        val updatedDays = mutableMapOf<String, Any>()
+                        weekData.forEach { (dayKey, dayValue) ->
+                            val dayMap = (dayValue as? Map<*, *>)?.toMutableMap() ?: mutableMapOf()
+                            dayMap["isCompleted"] = false
+                            dayMap["isMissed"] = false
+                            updatedDays[dayKey.toString()] = dayMap
+                        }
+                        trainingData[weekKey] = updatedDays
+                    }
+                }
+                Log.d(TAG, "✅ Reset status using 'week_X' structure")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error resetting weeks status", e)
+        }
     }
 
     /**
@@ -216,10 +246,10 @@ class NewbieDetailsFragment : Fragment() {
                 binding.backBtnRookie.isEnabled = true
                 binding.backBtnRookie.text = "เริ่มโปรแกรม"
 
-                Toast.makeText(requireContext(), "เริ่มโปรแกรมสำเร็จ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "เริ่มโปรแกรมสำเร็จ (โหมดดูอย่างเดียว)", Toast.LENGTH_SHORT).show()
 
-                // ✅ กลับไป MainFragment (พร้อม BottomNavigation)
-                returnToMainFragment()
+                // ✅ กลับไปหน้าก่อนหน้า
+                returnToPreviousScreen()
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "❌ Failed to save to Athletes collection", e)
@@ -230,32 +260,54 @@ class NewbieDetailsFragment : Fragment() {
     }
 
     /**
-     * ✅ กลับไป MainFragment (แก้ปัญหา NullPointerException)
+     *  กลับไปหน้าก่อนหน้า (แบบเดียวกับ RunningGoal5kFragment)
      */
-    private fun returnToMainFragment() {
-        val mainActivity = activity as? MainActivity
-        if (mainActivity != null) {
-            // ล้าง back stack ทั้งหมด
-            mainActivity.supportFragmentManager.popBackStack(
-                null,
-                androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
+    private fun returnToPreviousScreen() {
+        try {
+            Log.d(TAG, "🔙 Returning to previous screen...")
 
-            // กลับไป MainFragment ใหม่เลย (รับประกันว่า BottomNavigation จะแสดง)
-            mainActivity.replaceFragment(
-                MainFragment.newInstance(),
-                addToBackStack = false,
-                tag = MainFragment.TAG
-            )
+            val fragmentManager = activity?.supportFragmentManager
 
-            Log.d(TAG, "✅ Returned to MainFragment successfully")
-        } else {
-            Log.e(TAG, "❌ MainActivity is null, cannot return")
+            if (fragmentManager != null) {
+                val backStackCount = fragmentManager.backStackEntryCount
+
+
+                //  Pop back stack 2 ครั้ง (เหมือน RunningGoal5kFragment)
+                if (backStackCount >= 2) {
+                    fragmentManager.popBackStack()
+                    fragmentManager.popBackStack()
+
+                } else if (backStackCount > 0) {
+                    // Pop ทั้งหมดที่มี
+                    fragmentManager.popBackStack(
+                        null,
+                        androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+                    )
+
+                } else {
+                    Log.w(TAG, "⚠️ No back stack to pop")
+                }
+
+                Log.d(TAG, "✅ Returned successfully")
+            } else {
+                Log.e(TAG, "❌ FragmentManager is null")
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error returning to previous screen", e)
+            e.printStackTrace()
+
+            //  Fallback: ลองปิด fragment ปัจจุบัน
+            try {
+                activity?.supportFragmentManager?.popBackStack()
+            } catch (fallbackError: Exception) {
+                Log.e(TAG, "❌ Fallback also failed", fallbackError)
+            }
         }
     }
 
     /**
-     * ✅ บันทึกโปรแกรมลง Local Storage
+     *  บันทึกโปรแกรมลง Local Storage (แยกเก็บว่าเป็นโหมด View Only)
      */
     private fun saveProgramToLocal(startDate: Long) {
         sharedPreferences.edit().apply {
@@ -263,12 +315,12 @@ class NewbieDetailsFragment : Fragment() {
             putString("selected_program_name", PROGRAM_ID)
             putString("selected_program_display_name", DISPLAY_NAME)
             putString("selected_sub_program_name", SUB_PROGRAM_NAME)
-            putBoolean("is_view_only_program", true) // ✅ โปรแกรมมือใหม่ = ดูอย่างเดียว
+            putBoolean("is_view_only_program", true) //  โปรแกรมมือใหม่ = ดูอย่างเดียว ไม่บันทึก
             putLong("program_start_date", startDate)
             putLong("selected_at", System.currentTimeMillis())
             apply()
         }
-        Log.d(TAG, "✅ Program saved to Local Storage: $PROGRAM_ID (View Only Mode)")
+        Log.d(TAG, "✅ Program saved to Local Storage: $PROGRAM_ID (View Only Mode - No Recording)")
     }
 
     override fun onDestroyView() {

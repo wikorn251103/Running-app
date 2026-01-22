@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple"
+    android:background="@color/darkBlue"
     tools:context=".Fragment.loginandregister.">
 
     <!-- Header Section -->
@@ -68,7 +68,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:tint="@color/purple" />
+                app:tint="@color/darkBlue" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
@@ -493,7 +493,7 @@
                         android:text="เข้าสู่ระบบ"
                         android:textSize="15sp"
                         android:textStyle="bold"
-                        android:textColor="@color/purple" />
+                        android:textColor="@color/darkBlue" />
                 </LinearLayout>
 
             </LinearLayout>

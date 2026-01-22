@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.myproject.Fragment.admins.AdminDashboardFragment // ✅ เพิ่ม import
 import com.example.myproject.databinding.FragmentSignInBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.example.myproject.MainActivity
@@ -58,7 +57,7 @@ class SignInFragment : Fragment() {
                                 if (role == "admin") {
                                     Toast.makeText(context, "เข้าสู่ระบบในโหมดผู้ดูแลระบบ", Toast.LENGTH_SHORT).show()
                                     // ✅ เปิดหน้า Admin Dashboard
-                                    (activity as? MainActivity)?.replaceFragment(AdminDashboardFragment.newInstance())
+
                                 } else {
                                     Toast.makeText(context, "เข้าสู่ระบบในโหมดผู้ใช้ทั่วไป", Toast.LENGTH_SHORT).show()
                                     (activity as? MainActivity)?.replaceFragment(MainFragment.newInstance())

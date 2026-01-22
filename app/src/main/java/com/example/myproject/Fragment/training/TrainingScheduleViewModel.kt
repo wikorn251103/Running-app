@@ -71,21 +71,21 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
         val current = doc.get("startDate")
         if (current !is Timestamp) {
             doc.reference.update("startDate", Timestamp(Date(millis)))
-                .addOnSuccessListener { Log.d(TAG, "Migrated startDate → Timestamp") }
-                .addOnFailureListener { e -> Log.w(TAG, "Migration failed: ${e.message}") }
+                .addOnSuccessListener { Log.d(TAG, "✅ Migrated startDate → Timestamp") }
+                .addOnFailureListener { e -> Log.w(TAG, "⚠️ Migration failed: ${e.message}") }
         }
     }
     // --------------------------------------------------------
 
     /**
-     * โหลดข้อมูลแบบ Real-time
+     *  โหลดข้อมูลแบบ Real-time
      */
     fun loadTrainingWeekRealtime(week: Int) {
         _loading.value = true
         _error.value = null
         _currentWeek.value = week
 
-        Log.d(TAG, "Loading week $week with real-time updates")
+        Log.d(TAG, "🔄 Loading week $week with real-time updates")
 
         // ยกเลิก listener เก่า
         weekListener?.remove()
@@ -96,36 +96,36 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
             onSuccess = { days ->
                 _loading.value = false
                 _trainingDays.value = days
-                Log.d(TAG, "Received ${days.size} days for week $week")
+                Log.d(TAG, "✅ Received ${days.size} days for week $week")
             },
             onFailure = { exception ->
                 _loading.value = false
                 _error.value = exception.message
-                Log.e(TAG, "Error loading week $week: ${exception.message}")
+                Log.e(TAG, "❌ Error loading week $week: ${exception.message}")
             }
         )
     }
 
     /**
-     * คำนวณสัปดาห์ปัจจุบันจาก Firebase
+     *  คำนวณสัปดาห์ปัจจุบันจาก Firebase และโหลดทันที (Real-time Week Navigation)
      */
     fun calculateAndLoadCurrentWeek() {
         val userId = auth.currentUser?.uid
         if (userId == null) {
-            Log.e(TAG, "User not logged in")
+            Log.e(TAG, "❌ User not logged in")
             _currentWeek.value = 1
             loadTrainingWeekRealtime(1)
             return
         }
 
-        Log.d(TAG, "Calculating current week for user: $userId")
+        Log.d(TAG, "🔄 Calculating current week for user: $userId")
 
         firestore.collection("Athletes")
             .document(userId)
             .get()
             .addOnSuccessListener { document ->
                 if (!document.exists()) {
-                    Log.w(TAG, "No Athletes document found, defaulting to week 1")
+                    Log.w(TAG, "⚠️ No Athletes document found, defaulting to week 1")
                     _currentWeek.value = 1
                     loadTrainingWeekRealtime(1)
                     return@addOnSuccessListener
@@ -133,7 +133,7 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
 
                 val startMillis = document.readStartDateMillis()
                 if (startMillis == null) {
-                    Log.w(TAG, "startDate missing/invalid; defaulting to week 1")
+                    Log.w(TAG, "⚠️ startDate missing/invalid; defaulting to week 1")
                     _currentWeek.value = 1
                     loadTrainingWeekRealtime(1)
                     return@addOnSuccessListener
@@ -143,24 +143,24 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
                 migrateStartDateToTimestampIfNeeded(document, startMillis)
 
                 val calculatedWeek = calculateWeekFromStartDate(startMillis)
-                Log.d(TAG, "Calculated current week: $calculatedWeek")
+                Log.d(TAG, "✅ Calculated current week: $calculatedWeek")
 
                 _currentWeek.value = calculatedWeek
                 loadTrainingWeekRealtime(calculatedWeek)
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Failed to fetch Athletes document: ${e.message}", e)
+                Log.e(TAG, "❌ Failed to fetch Athletes document: ${e.message}", e)
                 _currentWeek.value = 1
                 loadTrainingWeekRealtime(1)
             }
     }
 
     /**
-     * คำนวณสัปดาห์จากวันที่เริ่มโปรแกรม
+     *  คำนวณสัปดาห์จากวันที่เริ่มโปรแกรม
      */
     private fun calculateWeekFromStartDate(startDateMillis: Long): Int {
         if (startDateMillis == 0L) {
-            Log.w(TAG, "No start date, defaulting to week 1")
+            Log.w(TAG, "⚠️ No start date, defaulting to week 1")
             return 1
         }
 
@@ -183,14 +183,17 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
             ((today.timeInMillis - startCalendar.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
         val currentWeek = (daysDiff / 7) + 1
 
-        Log.d(TAG, "Days since start: $daysDiff, Calculated week: $currentWeek")
+        Log.d(TAG, "📊 Start date: ${Date(startDateMillis)}")
+        Log.d(TAG, "📊 Today: ${today.time}")
+        Log.d(TAG, "📊 Days since start: $daysDiff")
+        Log.d(TAG, "📊 Calculated week: $currentWeek")
 
         // จำกัดไม่ให้น้อยกว่า 1 และไม่เกิน 12 สัปดาห์
         return currentWeek.coerceIn(1, 12)
     }
 
     /**
-     * ตรวจสอบวันที่ขาดซ้อม (เช็ควันที่ผ่านไปแล้ว)
+     *  ตรวจสอบวันที่ขาดซ้อม (เช็ควันที่ผ่านไปแล้ว)
      */
     fun checkMissedDays(week: Int) {
         viewModelScope.launch {
@@ -212,7 +215,7 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
                     }
 
                     val startMillis = document.readStartDateMillis() ?: run {
-                        Log.w(TAG, "startDate missing/invalid; skip missed-day check")
+                        Log.w(TAG, "⚠️ startDate missing/invalid; skip missed-day check")
                         return@addOnSuccessListener
                     }
 
@@ -253,22 +256,22 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
                                 .document(userId)
                                 .update(fieldPath, true)
                                 .addOnSuccessListener {
-                                    Log.d(TAG, "Marked week $week day $i as missed")
+                                    Log.d(TAG, "✅ Marked week $week day $i as missed")
                                 }
                                 .addOnFailureListener { e ->
-                                    Log.e(TAG, "Failed to mark day as missed", e)
+                                    Log.e(TAG, "❌ Failed to mark day as missed", e)
                                 }
                         }
                     }
                 }
                 .addOnFailureListener { e ->
-                    Log.e(TAG, "Error checking missed days", e)
+                    Log.e(TAG, "❌ Error checking missed days", e)
                 }
         }
     }
 
     /**
-     * ตรวจสอบว่ามีการซ้อมที่ค้างอยู่หรือไม่
+     *  ตรวจสอบว่ามีการซ้อมที่ค้างอยู่หรือไม่
      */
     fun checkPendingWorkouts(callback: (hasPending: Boolean, pendingWeek: Int?) -> Unit) {
         val userId = auth.currentUser?.uid
@@ -310,10 +313,10 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
                 }
 
                 callback(hasPending, if (hasPending) currentWeek else null)
-                Log.d(TAG, "Checked pending workouts: hasPending=$hasPending, week=$currentWeek")
+                Log.d(TAG, " Checked pending workouts: hasPending=$hasPending, week=$currentWeek")
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Error checking pending workouts", e)
+                Log.e(TAG, " Error checking pending workouts", e)
                 callback(false, null)
             }
     }
@@ -332,12 +335,10 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
             onSuccess = { days ->
                 _loading.value = false
                 _trainingDays.value = days
-                Log.d(TAG, "Loaded ${days.size} days for week $week")
             },
             onFailure = { exception ->
                 _loading.value = false
                 _error.value = exception.message
-                Log.e(TAG, "Error loading week $week: ${exception.message}")
             }
         )
     }
@@ -350,6 +351,5 @@ class TrainingScheduleViewModel(private val repository: TrainingRepository) : Vi
         super.onCleared()
         weekListener?.remove()
         repository.removeListener()
-        Log.d(TAG, "🔕 Listeners cleaned up")
     }
 }
