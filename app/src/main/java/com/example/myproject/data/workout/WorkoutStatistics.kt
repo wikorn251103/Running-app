@@ -9,3 +9,10 @@ data class WorkoutStatistics(
     val longestRun: Double = 0.0,
     val fastestPace: String = "0:00"
 )
+
+data class WeeklyStats(
+    val weekNumber: Int,
+    val totalDistance: Double,
+    val totalWorkouts: Int,
+    val averagePace: String
+)

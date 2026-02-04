@@ -16,11 +16,12 @@
         <!-- Modern Header -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="120dp"
             android:background="@color/white"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="20dp"
+            android:paddingTop="30dp"
             android:paddingEnd="20dp"
             android:elevation="4dp">
 
@@ -142,7 +143,7 @@
                             android:layout_height="wrap_content"
                             android:text="4"
                             android:textColor="@color/black"
-                            android:textSize="32sp"
+                            android:textSize="18sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
@@ -171,7 +172,7 @@
                             android:layout_height="wrap_content"
                             android:text="4"
                             android:textColor="@color/black"
-                            android:textSize="32sp"
+                            android:textSize="18sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
@@ -198,7 +199,7 @@
                             android:layout_height="wrap_content"
                             android:text="20-30"
                             android:textColor="@color/black"
-                            android:textSize="32sp"
+                            android:textSize="18sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
@@ -230,7 +231,7 @@
                     android:layout_height="56dp"
                     android:layout_marginTop="24dp"
                     android:text="เริ่มโปรแกรม"
-                    android:background="@drawable/txt_bg"
+                    android:background="@drawable/getstarted_bg"
                     android:textColor="@color/white"
                     android:textSize="17sp"
                     android:fontFamily="sans-serif-medium"
@@ -339,7 +340,7 @@
                             android:layout_height="wrap_content"
                             android:text="4"
                             android:textColor="@color/black"
-                            android:textSize="32sp"
+                            android:textSize="18sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
@@ -368,7 +369,7 @@
                             android:layout_height="wrap_content"
                             android:text="5"
                             android:textColor="@color/black"
-                            android:textSize="32sp"
+                            android:textSize="18sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
@@ -395,7 +396,7 @@
                             android:layout_height="wrap_content"
                             android:text="30-40"
                             android:textColor="@color/black"
-                            android:textSize="32sp"
+                            android:textSize="18sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
@@ -427,7 +428,7 @@
                     android:layout_height="56dp"
                     android:layout_marginTop="24dp"
                     android:text="เริ่มโปรแกรม"
-                    android:background="@drawable/txt_bg"
+                    android:background="@drawable/bg_5km_get"
                     android:textColor="@color/white"
                     android:textSize="17sp"
                     android:fontFamily="sans-serif-medium"
@@ -534,7 +535,7 @@
                             android:layout_height="wrap_content"
                             android:text="4"
                             android:textColor="@color/black"
-                            android:textSize="32sp"
+                            android:textSize="18sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
@@ -562,7 +563,7 @@
                             android:layout_height="wrap_content"
                             android:text="5"
                             android:textColor="@color/black"
-                            android:textSize="32sp"
+                            android:textSize="18sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
@@ -588,7 +589,7 @@
                             android:layout_height="wrap_content"
                             android:text="40-50"
                             android:textColor="@color/black"
-                            android:textSize="32sp"
+                            android:textSize="18sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
@@ -620,7 +621,7 @@
                     android:layout_height="56dp"
                     android:layout_marginTop="24dp"
                     android:text="เริ่มโปรแกรม"
-                    android:background="@drawable/txt_bg"
+                    android:background="@drawable/bg_10km_get"
                     android:textColor="@color/white"
                     android:textSize="17sp"
                     android:fontFamily="sans-serif-medium"

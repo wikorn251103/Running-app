@@ -52,6 +52,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.firestore)
 
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     implementation("io.coil-kt:coil:2.4.0")
 
     implementation("androidx.fragment:fragment-ktx:1.8.8")

@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myproject.data.workout.WeeklyStats
 import com.example.myproject.data.workout.WorkoutLog
 import com.example.myproject.data.workout.WorkoutRepository
 import com.example.myproject.data.workout.WorkoutStatistics
@@ -27,8 +28,55 @@ class WorkoutHistoryViewModel : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
 
+    private val _weeklyStats = MutableLiveData<List<WeeklyStats>>()
+    val weeklyStats: LiveData<List<WeeklyStats>> get() = _weeklyStats
+
     companion object {
         private const val TAG = "WorkoutHistoryViewModel"
+    }
+
+    fun calculateWeeklyStats(workoutLogs: List<WorkoutLog>) {
+        viewModelScope.launch {
+            try {
+                // Group by week number
+                val statsByWeek = workoutLogs
+                    .groupBy { it.weekNumber }
+                    .map { (weekNum, logs) ->
+                        val totalDistance = logs.sumOf { it.actualDistance }
+                        val totalWorkouts = logs.size
+                        val avgPaceMinutes = if (logs.isNotEmpty()) {
+                            logs.map { it.calculatePaceInMinutes() }.average()
+                        } else 0.0
+
+                        WeeklyStats(
+                            weekNumber = weekNum,
+                            totalDistance = totalDistance,
+                            totalWorkouts = totalWorkouts,
+                            averagePace = formatPace(avgPaceMinutes)
+                        )
+                    }
+                    .sortedBy { it.weekNumber }
+
+                _weeklyStats.postValue(statsByWeek)
+                Log.d(TAG, "✅ Weekly stats calculated: ${statsByWeek.size} weeks")
+
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Error calculating weekly stats", e)
+            }
+        }
+    }
+
+    private fun formatPace(minutes: Double): String {
+        val mins = minutes.toInt()
+        val secs = ((minutes - mins) * 60).toInt()
+        return String.format("%d:%02d", mins, secs)
+    }
+
+    // Extension function
+    private fun WorkoutLog.calculatePaceInMinutes(): Double {
+        return if (actualDistance > 0) {
+            actualDuration / actualDistance
+        } else 0.0
     }
 
     fun loadWorkoutHistory() {
