@@ -241,6 +241,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/gradient_card_header"
                     android:gravity="center_vertical"
+
                     android:orientation="horizontal"
                     android:padding="24dp">
 
@@ -595,12 +596,12 @@
             <!-- Drill Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/startDrill"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
+                android:layout_marginEnd="12dp"
                 android:foreground="?android:attr/selectableItemBackground"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
@@ -654,11 +655,11 @@
             <!-- Track Progress Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/trackProgress"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
                 android:layout_weight="1"
                 android:clickable="true"
+                android:layout_marginStart="12dp"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
                 app:cardCornerRadius="20dp"

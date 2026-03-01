@@ -18,6 +18,9 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
     }
 
     override fun initViews() {
+
+        binding.bottomNavigation.menu.findItem(R.id.bottom_calendar)?.isVisible = false
+
         replaceFragment(HomeFragment.newInstance())
 
         binding.bottomNavigation.setOnItemSelectedListener { menuItem ->
@@ -42,10 +45,10 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
             }
         }
 
-        // ✅ เพิ่ม: ฟังเหตุการณ์เมื่อกลับจาก RecordWorkoutFragment
+        // เพิ่ม: ฟังเหตุการณ์เมื่อกลับจาก RecordWorkoutFragment
         setupFragmentResultListener()
 
-        // ✅ เพิ่ม: ฟังการเปลี่ยน Fragment เพื่อแสดง/ซ่อนเมนูอัตโนมัติ
+        // เพิ่ม: ฟังการเปลี่ยน Fragment เพื่อแสดง/ซ่อนเมนูอัตโนมัติ
         setupFragmentLifecycleListener()
     }
 

@@ -271,21 +271,15 @@ class HomeFragment : Fragment() {
             return
         }
 
-        if (!isAdded) {
-            return
-        }
+        if (!isAdded) return
 
-        _binding?.let { it.progressBar?.visibility = View.VISIBLE }
+        _binding?.progressBar?.visibility = View.VISIBLE
 
         firestore.collection("Athletes")
             .document(userId)
             .get()
             .addOnSuccessListener { document ->
-                if (!isAdded || _binding == null) {
-                    Log.w(TAG, "⚠️ Fragment detached or binding null, ignoring result")
-                    return@addOnSuccessListener
-                }
-
+                if (!isAdded || _binding == null) return@addOnSuccessListener
 
                 if (document.exists()) {
                     val isActive = document.getBoolean("isActive") ?: false
@@ -300,7 +294,6 @@ class HomeFragment : Fragment() {
                         document.getLong("startDate")
                     } ?: 0L
 
-
                     if (isActive && programId.isNotEmpty()) {
                         sharedPreferences.edit().apply {
                             putBoolean("program_selected", true)
@@ -311,25 +304,33 @@ class HomeFragment : Fragment() {
                             putLong("program_start_date", startDateMillis)
                             apply()
                         }
-
                     } else {
-
                         clearProgramSelection()
                     }
                 } else {
-
                     clearProgramSelection()
                 }
 
-                _binding?.let { it.progressBar?.visibility = View.GONE }
-                loadAndUpdateUIState()
+                _binding?.progressBar?.visibility = View.GONE
+
+                // ✅ ใช้ post() เพื่อให้แน่ใจว่า MainFragment โหลดเสร็จก่อนสั่ง updateVisibility
+                view?.post {
+                    if (isAdded && _binding != null) {
+                        loadAndUpdateUIState()
+                    }
+                }
             }
             .addOnFailureListener { e ->
                 if (!isAdded || _binding == null) return@addOnFailureListener
 
                 Log.e(TAG, "❌ Failed to sync from Firebase: ${e.message}", e)
-                _binding?.let { it.progressBar?.visibility = View.GONE }
-                loadAndUpdateUIState()
+                _binding?.progressBar?.visibility = View.GONE
+
+                view?.post {
+                    if (isAdded && _binding != null) {
+                        loadAndUpdateUIState()
+                    }
+                }
             }
     }
 

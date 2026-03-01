@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="สร้างบัญชีใหม่"
-            android:textSize="32sp"
+            android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
             android:shadowColor="#40000000"
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="กรอกข้อมูลเพื่อเริ่มต้นใช้งาน"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textColor="#E8F0FE"
             android:alpha="0.9"/>
     </LinearLayout>
@@ -207,7 +207,7 @@
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="#F5F7FA"
-                    android:layout_marginBottom="20dp">
+                    android:layout_marginBottom="8dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -237,6 +237,52 @@
                             android:textColor="#333333"/>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
+
+                <!-- ✅ เงื่อนไขรหัสผ่าน -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="20dp"
+                    android:paddingStart="4dp"
+                    android:paddingTop="6dp">
+
+                    <TextView
+                        android:id="@+id/conditionLength"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✗  อย่างน้อย 8 ตัวอักษร"
+                        android:textSize="12sp"
+                        android:textColor="#AAAAAA"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:id="@+id/conditionUpper"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✗  ตัวพิมพ์ใหญ่ (A-Z)"
+                        android:textSize="12sp"
+                        android:textColor="#AAAAAA"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:id="@+id/conditionLower"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✗  ตัวพิมพ์เล็ก (a-z)"
+                        android:textSize="12sp"
+                        android:textColor="#AAAAAA"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:id="@+id/conditionDigit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✗  ตัวเลข (0-9)"
+                        android:textSize="12sp"
+                        android:textColor="#AAAAAA"/>
+
+                </LinearLayout>
 
                 <!-- ส่วนสูงและน้ำหนัก -->
                 <LinearLayout
@@ -475,7 +521,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_gravity="center"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="50dp">
 
                     <TextView
                         android:id="@+id/textView2"

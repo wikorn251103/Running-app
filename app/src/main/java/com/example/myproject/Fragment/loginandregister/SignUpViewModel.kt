@@ -29,7 +29,7 @@ class SignUpViewModel(
             _signUpState.value = if (result.isSuccess) {
                 SignUpState.Success(user)
             } else {
-                SignUpState.Error(result.exceptionOrNull()?.message ?: "Unknown Error")
+                SignUpState.Error(result.exceptionOrNull()?.message ?: "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ")
             }
         }
     }

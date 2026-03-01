@@ -19,11 +19,15 @@ class SignUpAdapter(
         gender: String,
     ): Result<Unit> {
         return try {
-            // สมัครสมาชิก Firebase Auth
+            // ✅ สร้าง account ใน Firebase Auth
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-            val uid = authResult.user?.uid ?: return Result.failure(Exception("ไม่พบ UID"))
+            val uid = authResult.user?.uid
+                ?: return Result.failure(Exception("ไม่พบ UID กรุณาลองใหม่อีกครั้ง"))
 
-            // สร้าง UserModel ตรง ๆ
+            // ✅ ส่ง Verification Email ทันที
+            authResult.user?.sendEmailVerification()?.await()
+
+            // ✅ บันทึกข้อมูลลง Firestore
             val user = UserModel(
                 uid = uid,
                 name = name,
@@ -33,14 +37,15 @@ class SignUpAdapter(
                 age = age,
                 gender = gender,
                 trainingPlan = "",
-                role = "user"// กำหนดค่าเริ่มต้นได้
+                role = "user"
             )
 
-            // ✅ บันทึกลง Firestore โดยตรง
             db.collection("users").document(uid).set(user).await()
 
             Result.success(Unit)
         } catch (e: Exception) {
+            // ✅ ถ้า Firestore ล้มเหลวหลัง Auth สำเร็จ → ลบ account ออกด้วยเพื่อความสะอาด
+            auth.currentUser?.delete()?.await()
             Result.failure(e)
         }
     }

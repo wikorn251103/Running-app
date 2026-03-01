@@ -20,7 +20,7 @@ class RunningGoal5kFragment : Fragment() {
     private var _binding: FragmentRunningGoal5kBinding? = null
     private val binding get() = _binding!!
 
-    private val timeOptions = listOf("20:00", "22:30", "25:00", "27:30", "30:00", "35:00")
+    private val timeOptions = listOf("20:00", "22:30", "25:00", "30:00")
     private var selectedTime: String = ""
 
     private val firestore by lazy { FirebaseFirestore.getInstance() }
@@ -56,7 +56,7 @@ class RunningGoal5kFragment : Fragment() {
             binding.button1,
             binding.button2,
             binding.button3,
-            binding.button5,
+            binding.button4,
 
             )
 
@@ -113,9 +113,7 @@ class RunningGoal5kFragment : Fragment() {
             "20:00" -> "5k_sub20"
             "22:30" -> "5k_sub22_30"
             "25:00" -> "5k_sub25"
-            "27:30" -> "5k_sub27_30"
             "30:00" -> "5k_sub30"
-            "35:00" -> "5k_sub35"
             else -> "5k_sub25"
         }
     }
@@ -225,7 +223,7 @@ class RunningGoal5kFragment : Fragment() {
                         trainingData["weeks"] = updatedWeeks
                     }
 
-                    // ✅ บันทึกและมาร์ควันที่ขาดซ้อม
+                    //บันทึกและมาร์ควันที่ขาดซ้อม
                     saveToAthletesCollectionAndMarkMissed(userId, trainingData, programId, displayName, currentTime)
                 } else {
                     binding.startProgramBtn.isEnabled = true
@@ -241,7 +239,7 @@ class RunningGoal5kFragment : Fragment() {
             }
     }
 
-    // ฟังก์ชันใหม่: บันทึกและมาร์ควันที่ขาดซ้อม
+    //ฟังก์ชันใหม่: บันทึกและมาร์ควันที่ขาดซ้อม
     private fun saveToAthletesCollectionAndMarkMissed(
         userId: String,
         trainingData: MutableMap<String, Any>,
@@ -253,9 +251,9 @@ class RunningGoal5kFragment : Fragment() {
             .document(userId)
             .set(trainingData)
             .addOnSuccessListener {
-                Log.d(TAG, "✅ Training program saved to Athletes/$userId successfully")
+                Log.d(TAG, "Training program saved to Athletes/$userId successfully")
 
-                // ✅ มาร์ควันที่ขาดซ้อมก่อนเริ่มโปรแกรม
+                // มาร์ควันที่ขาดซ้อมก่อนเริ่มโปรแกรม
                 markMissedDaysBeforeStart(userId, startDate)
 
                 saveProgramToLocal(programId, displayName, startDate)
@@ -269,14 +267,14 @@ class RunningGoal5kFragment : Fragment() {
                 activity?.supportFragmentManager?.popBackStack()
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "❌ Failed to save to Athletes collection", e)
+                Log.e(TAG, " Failed to save to Athletes collection", e)
                 binding.startProgramBtn.isEnabled = true
                 binding.startProgramBtn.text = "เริ่มโปรแกรม"
                 Toast.makeText(requireContext(), "ไม่สามารถบันทึกได้: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
-    // ✅ ฟังก์ชันมาร์ควันที่ขาดซ้อมก่อนเริ่มโปรแกรม
+    // ฟังก์ชันมาร์ควันที่ขาดซ้อมก่อนเริ่มโปรแกรม
     private fun markMissedDaysBeforeStart(userId: String, startDate: Long) {
         val startCalendar = java.util.Calendar.getInstance().apply {
             timeInMillis = startDate
@@ -299,7 +297,7 @@ class RunningGoal5kFragment : Fragment() {
             else -> 1
         }
 
-        Log.d(TAG, "📅 Program starts on day: $programStartDay (1=จันทร์, 7=อาทิตย์)")
+        Log.d(TAG, "Program starts on day: $programStartDay (1=จันทร์, 7=อาทิตย์)")
 
         // ถ้าเริ่มโปรแกรมวันพุธ (day 3) → มาร์ควันจันทร์และอังคาร (day 1-2) ว่าขาดซ้อม
         if (programStartDay > 1) {
@@ -317,29 +315,29 @@ class RunningGoal5kFragment : Fragment() {
                     .document(userId)
                     .update(updates)
                     .addOnSuccessListener {
-                        Log.d(TAG, "✅ Marked ${updates.size} days as missed before start")
+                        Log.d(TAG, "Marked ${updates.size} days as missed before start")
                     }
                     .addOnFailureListener { e ->
-                        Log.e(TAG, "❌ Failed to mark missed days", e)
+                        Log.e(TAG, "Failed to mark missed days", e)
                     }
             }
         } else {
-            Log.d(TAG, "✅ Program starts on Monday, no days to mark as missed")
+            Log.d(TAG, "Program starts on Monday, no days to mark as missed")
         }
     }
 
-    // ✅ แก้ไขเพื่อบันทึก startDate
+    // แก้ไขเพื่อบันทึก startDate
     private fun saveProgramToLocal(programName: String, displayName: String, startDate: Long) {
         sharedPreferences.edit().apply {
             putBoolean("program_selected", true)
             putString("selected_program_name", programName)
             putString("selected_program_display_name", displayName)
             putString("selected_sub_program_name", "โปรแกรมย่อย 5K")
-            putLong("program_start_date", startDate) // ✅ บันทึก startDate
+            putLong("program_start_date", startDate) // บันทึก startDate
             putLong("selected_at", System.currentTimeMillis())
             apply()
         }
-        Log.d(TAG, "✅ Program saved to Local Storage: $programName with startDate: $startDate")
+        Log.d(TAG, "Program saved to Local Storage: $programName with startDate: $startDate")
     }
 
     override fun onDestroyView() {
