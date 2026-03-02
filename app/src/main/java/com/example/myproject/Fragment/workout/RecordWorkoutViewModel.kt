@@ -25,14 +25,8 @@ class RecordWorkoutViewModel : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
 
-    private var selectedFeeling: String = ""
-
     companion object {
         private const val TAG = "RecordWorkoutViewModel"
-    }
-
-    fun setFeeling(feeling: String) {
-        selectedFeeling = feeling
     }
 
     fun saveWorkout(
@@ -43,7 +37,9 @@ class RecordWorkoutViewModel : ViewModel() {
         duration: Long,
         calories: Int,
         heartRate: Int,
-        notes: String
+        notes: String,
+        paceResult: String = "",       // ✅ เพิ่ม
+        paceDiffSeconds: Int = 0       // ✅ เพิ่ม
     ) {
         viewModelScope.launch {
             try {
@@ -57,7 +53,6 @@ class RecordWorkoutViewModel : ViewModel() {
                     return@launch
                 }
 
-                // สร้าง WorkoutLog
                 val workoutLog = WorkoutLog(
                     userId = userId,
                     programId = "",
@@ -74,26 +69,21 @@ class RecordWorkoutViewModel : ViewModel() {
                     averageHeartRate = heartRate,
                     completedAt = System.currentTimeMillis(),
                     notes = notes,
-                    feeling = selectedFeeling,
+                    feeling = paceResult,          // ✅ เก็บ paceResult ใน feeling ด้วย (backward compat)
+                    paceResult = paceResult,        // ✅
+                    paceDiffSeconds = paceDiffSeconds, // ✅
                     isCompleted = true
                 )
 
-                // บันทึก WorkoutLog
                 val saveResult = repository.saveWorkoutLog(workoutLog)
 
                 if (saveResult.isSuccess) {
-                    Log.d(TAG, "✅ Workout log saved successfully")
-
-                    // อัปเดท isCompleted = true ใน Athletes
+                    Log.d(TAG, "✅ Workout log saved | paceResult=$paceResult | diff=${paceDiffSeconds}s")
                     val markResult = repository.markDayAsCompleted(weekNumber, dayNumber)
-
-                    if (markResult.isSuccess) {
-                        Log.d(TAG, "✅ Day marked as completed in Athletes")
-                        _saveSuccess.postValue(true)
-                    } else {
+                    if (!markResult.isSuccess) {
                         Log.w(TAG, "⚠️ Failed to mark day, but workout saved")
-                        _saveSuccess.postValue(true)
                     }
+                    _saveSuccess.postValue(true)
                 } else {
                     _error.postValue("ไม่สามารถบันทึกข้อมูลได้")
                     Log.e(TAG, "❌ Failed to save workout log")
@@ -110,12 +100,8 @@ class RecordWorkoutViewModel : ViewModel() {
 
     private fun calculatePace(distance: Double, duration: Long): String {
         if (distance <= 0 || duration <= 0) return "0:00"
-
         val paceInSeconds = (duration / distance).toInt()
-        val minutes = paceInSeconds / 60
-        val seconds = paceInSeconds % 60
-
-        return String.format("%d:%02d", minutes, seconds)
+        return String.format("%d:%02d", paceInSeconds / 60, paceInSeconds % 60)
     }
 
     fun clearError() {
